@@ -31,7 +31,7 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 5.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
-    /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景，並保持完美比例 */
+    /* 首頁背景：讀取 SMV00141.jpg 做為霧面浮水印背景 */
     body::before {
       content: "";
       position: fixed;
@@ -41,6 +41,19 @@
       background-repeat: no-repeat;
       background-position: center;
       z-index: 0;
+      pointer-events: none;
+    }
+
+    /* 中獎畫面背景：讀取 SMV02162.jpg 做為霧面浮水印背景 */
+    #result-area::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(rgba(247, 243, 238, 0.82), rgba(247, 243, 238, 0.82)), url('SMV02162.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: -1;
       pointer-events: none;
     }
   </style>
@@ -84,24 +97,25 @@
     </div>
   </main>
 
-  <!-- 滿版霸氣中獎顯示彈窗 (預設隱藏，開獎時佔據畫面絕大部分並隱藏轉盤與名單) -->
-  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-md bg-black/20">
-    <div id="result-card" class="w-full max-w-5xl rounded-[40px] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4" style="border-color: rgb(215, 193, 178);">
+  <!-- 滿版霸氣中獎顯示彈窗 (使用 SMV02162.jpg 仙女棒照片作為背景) -->
+  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-sm bg-black/10">
+    <!-- 放大寬度至 max-w-6xl 與 p-12 sm:p-20 內距 -->
+    <div id="result-card" class="w-full max-w-6xl rounded-[44px] p-12 sm:p-20 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4" style="border-color: rgb(215, 193, 178);">
       
-      <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-3" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
-      <p class="text-sm font-bold tracking-wider mb-2" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
+      <p class="text-xl sm:text-3xl font-extrabold tracking-widest uppercase mb-4" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
+      <p class="text-base sm:text-lg font-bold tracking-wider mb-2" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
       
-      <!-- 得獎人名字 (超級大字體) -->
-      <p id="result-name" class="font-black text-6xl sm:text-7xl xl:text-8xl my-6 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
+      <!-- 得獎人名字字體大幅放大 (text-7xl sm:text-8xl xl:text-9xl) -->
+      <p id="result-name" class="font-black text-7xl sm:text-8xl xl:text-9xl my-8 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
       
-      <div class="mt-6 pt-6 border-t border-gray-100 max-w-xl mx-auto">
-        <p class="text-base text-gray-400 mb-2">Blessings：</p>
-        <p id="result-wish" class="text-xl sm:text-2xl italic px-6 py-4 rounded-3xl font-medium max-h-48 overflow-y-auto shadow-inner" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+      <div class="mt-8 pt-6 border-t border-gray-100 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-400 mb-2">Blessings：</p>
+        <p id="result-wish" class="text-2xl sm:text-3xl italic px-8 py-6 rounded-3xl font-medium max-h-56 overflow-y-auto shadow-inner" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
       </div>
 
-      <!-- 重新抽獎 / 關閉按鈕，方便婚禮現場主持繼續操作 -->
-      <div class="mt-8">
-        <button id="close-result-btn" class="rounded-full px-12 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 20px;">
+      <!-- 重新抽獎 / 關閉按鈕 -->
+      <div class="mt-10">
+        <button id="close-result-btn" class="rounded-full px-16 py-5 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 24px;">
           Back
         </button>
       </div>
@@ -262,7 +276,7 @@
         setTimeout(() => {
           gameContainer.classList.add('hidden');
           resultArea.classList.remove('hidden');
-          resultCard.className = 'w-full max-w-3xl rounded-[40px] p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4 result-modal-reveal';
+          resultCard.className = 'w-full max-w-6xl rounded-[44px] p-12 sm:p-20 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4 result-modal-reveal';
           spawnConfetti();
         }, 300);
 
