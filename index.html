@@ -22,6 +22,20 @@
     }
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+    
+    /* 婚紗照浮水印背景設定 */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: url('input_file_8.png');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15; /* 浮水印感，不影響文字閱讀 */
+      filter: blur(4px) brightness(1.1); /* 微微模糊與調亮 */
+      z-index: 0;
+      pointer-events: none;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
@@ -32,12 +46,12 @@
       <!-- 左側：放大英文標題與留言檢視列表 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
-          <h1 class="text-5xl md:text-6xl tracking-wider uppercase" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
-          <p class="mt-2 text-lg md:text-xl font-medium" style="color: rgb(138, 122, 110);">尋找現場最幸運的賓客抽大獎！</p>
+          <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
+          <p class="mt-2 text-lg md:text-xl font-medium" style="color: rgb(112, 96, 86);">尋找現場最幸運的賓客抽大獎！</p>
         </header>
 
-        <!-- 側邊留言清單（放大高度） -->
-        <div class="w-full rounded-2xl p-6 shadow-md text-left flex flex-col" style="background: rgb(255, 255, 255); border: 1px solid rgb(238, 230, 221); max-height: 520px;">
+        <!-- 側邊留言清單 -->
+        <div class="w-full rounded-2xl p-6 shadow-md text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 520px;">
           <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-100">
             <span class="text-base font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
             <span class="text-xs text-gray-400">可上下滾動檢視</span>
@@ -50,7 +64,7 @@
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
           <div class="absolute top-[-26px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid rgb(92, 78, 68);"></div>
-          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-xl" style="width:min(500px,100vw);height:min(500px,100vw); background: white;"></canvas>
+          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-xl bg-white/95 backdrop-blur-sm" style="width:min(500px,100vw);height:min(500px,100vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-16 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 22px;">
@@ -58,7 +72,7 @@
         </button>
 
         <!-- 中獎顯示區塊 -->
-        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-md" style="background: rgb(255, 255, 255); border: 2px solid rgb(227, 213, 202);">
+        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-md backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
           <p class="text-xs font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
           <p id="result-name" class="font-extrabold text-3xl my-2" style="color: rgb(92, 78, 68);"></p>
           <div class="mt-3 pt-3 border-t border-gray-100">
