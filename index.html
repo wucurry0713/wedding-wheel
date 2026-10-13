@@ -23,12 +23,12 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 內嵌婚紗照霧面浮水印背景（不需要另外上傳圖片檔案） */
+    /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(rgba(247, 243, 238, 0.85), rgba(247, 243, 238, 0.85)), url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
+      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('SMV00141.jpg');
       background-size: cover;
       background-position: center;
       z-index: 0;
@@ -37,11 +37,11 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：放大英文標題與留言檢視列表 -->
+      <!-- 左側：英文標題與留言檢視列表 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
           <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
@@ -147,95 +147,4 @@
     const resultArea = document.getElementById('result-area');
     const countNum = document.getElementById('count-num');
 
-    function drawWheel() {
-      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 10;
-      ctx.clearRect(0,0,w,h);
-      if (!guestData.length) return;
-      const arc = (Math.PI*2)/guestData.length;
-      
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
-      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 6; ctx.stroke();
-      
-      guestData.forEach((item, i) => {
-        const start = i * arc, end = start + arc;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
-        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
-        
-        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
-        
-        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
-        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#5c4e44'; 
-        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
-        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
-        ctx.restore();
-      });
-    }
-
-    function renderChips() {
-      chipsEl.innerHTML = '';
-      countNum.textContent = guestData.length;
-      guestData.forEach((item) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm md:text-base font-medium w-full shadow-2xs';
-        chip.style.background = 'rgb(247, 243, 238)'; 
-        chip.style.color = 'rgb(92, 78, 68)';
-        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-3 text-gray-500 text-right italic">"${item.wish}"</span>`;
-        chipsEl.appendChild(chip);
-      });
-    }
-
-    function spawnConfetti() {
-      for (let i = 0; i < 40; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'confetti-dot';
-        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 60 + Math.random() * 100;
-        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
-        dot.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
-        dot.style.left = '50%'; dot.style.top = '50%';
-        dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.animationDuration = (1.2 + Math.random() * 0.5) + 's';
-        resultArea.appendChild(dot);
-        setTimeout(() => dot.remove(), 1800);
-      }
-    }
-
-    spinBtn.addEventListener('click', () => {
-      if (spinning || guestData.length < 2) return;
-      spinning = true;
-      spinBtn.style.opacity = '0.5';
-      resultArea.classList.add('hidden');
-
-      const totalDeg = (6 + Math.random()*3)*360 + Math.random()*360;
-      currentRotation += totalDeg;
-      canvas.classList.add('spinning');
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      setTimeout(() => {
-        canvas.classList.remove('spinning');
-        spinning = false;
-        spinBtn.style.opacity = '1';
-
-        const normalizedRotation = (currentRotation % 360 + 360) % 360;
-        const topAngle = (270 - normalizedRotation + 360) % 360;
-        const segmentAngle = 360 / guestData.length;
-        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
-        
-        const winner = guestData[winIdx];
-        document.getElementById('result-name').textContent = winner.name;
-        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
-        
-        resultArea.classList.remove('hidden');
-        resultArea.querySelector('#result-name').className = 'font-extrabold text-3xl my-2 result-reveal';
-        spawnConfetti();
-      }, 4100);
-    });
-
-    renderChips();
-    drawWheel();
-  </script>
-</body>
-</html>
+    function draw
