@@ -11,23 +11,23 @@
     .chip { animation: chipIn 0.2s ease-out; }
     @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
-    /* 強化得獎名單出現的動態效果（放大彈跳與炫彩光影感） */
-    @keyframes resultReveal { 
-      0% { transform: scale(0.4) rotate(-5deg); opacity: 0; filter: blur(4px); } 
-      60% { transform: scale(1.08) rotate(2deg); opacity: 1; filter: blur(0px); }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; } 
+    /* 滿版震撼中獎彈窗出現動畫 */
+    @keyframes resultRevealModal { 
+      0% { transform: scale(0.5) translateY(30px); opacity: 0; filter: blur(6px); } 
+      70% { transform: scale(1.03) translateY(-10px); opacity: 1; filter: blur(0px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; } 
     }
     @keyframes confettiBurst {
       0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
       100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.6); opacity: 0; }
     }
-    .result-reveal { animation: resultReveal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .result-modal-reveal { animation: resultRevealModal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     .confetti-dot {
-      position: absolute; width: 12px; height: 12px; border-radius: 50%;
-      animation: confettiBurst 1.5s ease-out forwards;
+      position: absolute; width: 14px; height: 14px; border-radius: 50%;
+      animation: confettiBurst 1.8s ease-out forwards;
     }
     
-    /* 轉盤旋轉時間拉長至 5.5 秒 */
+    /* 轉盤旋轉時間 5.5 秒 */
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 5.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
@@ -36,7 +36,7 @@
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('SMV00141.jpg');
+      background: linear-gradient(rgba(247, 243, 238, 0.85), rgba(247, 243, 238, 0.85)), url('SMV00141.jpg');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -47,8 +47,9 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
-  <!-- 擴大滿版容器限制，大幅提升大螢幕上的滿版震撼感 -->
-  <main class="relative z-10 w-full max-w-[1500px] mx-auto px-4 sm:px-8 py-8">
+  
+  <!-- 主遊戲畫面容器 (抽獎時顯示，得獎時隱藏) -->
+  <main id="game-container" class="relative z-10 w-full max-w-[1500px] mx-auto px-4 sm:px-8 py-8 transition-opacity duration-500">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
       
       <!-- 左側：標題與祝福清單 (佔 5 欄) -->
@@ -59,7 +60,7 @@
         </header>
 
         <!-- 側邊留言清單 -->
-        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 650px;">
+        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 580px;">
           <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
             <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">💌 Love & Blessings</span>
           </div>
@@ -67,31 +68,46 @@
         </div>
       </div>
 
-      <!-- 右側：大尺寸轉盤與抽獎結果 (佔 7 欄，並適度向右微調距離) -->
-      <div class="flex flex-col items-center gap-8 lg:col-span-7 lg:pl-4" style="transform: translateX(30px);">
+      <!-- 右側：大尺寸轉盤與 GO 按鈕 (佔 7 欄) -->
+      <div class="flex flex-col items-center gap-8 lg:col-span-7 lg:pl-4" style="transform: translateX(50px);">
         <div class="relative">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(580px, 92vw); height:min(580px, 92vw);"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(520px, 92vw); height:min(520px, 92vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-24 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 28px;">
           GO
         </button>
-
-        <!-- 中獎顯示區塊（名字明顯加大並具備強烈動態效果） -->
-        <div id="result-area" class="w-full max-w-[520px] rounded-3xl p-8 text-center hidden relative overflow-hidden shadow-2xl backdrop-blur-md bg-white/95" style="border: 3px solid rgb(215, 193, 178);">
-          <p class="text-base font-extrabold tracking-widest uppercase mb-2" style="color: rgb(160, 130, 115);">🎉 恭喜中獎 🎉</p>
-          <p id="result-name" class="font-black text-5xl sm:text-6xl my-4" style="color: rgb(92, 78, 68);"></p>
-          <div class="mt-4 pt-4 border-t border-gray-100">
-            <p class="text-sm text-gray-400 mb-1">Blessings：</p>
-            <p id="result-wish" class="text-lg italic px-5 py-3 rounded-2xl font-medium max-h-36 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
-          </div>
-        </div>
       </div>
 
     </div>
   </main>
+
+  <!-- 滿版霸氣中獎顯示彈窗 (預設隱藏，開獎時佔據畫面絕大部分並隱藏轉盤與名單) -->
+  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-md bg-black/20">
+    <div id="result-card" class="w-full max-w-3xl rounded-[40px] p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4" style="border-color: rgb(215, 193, 178);">
+      
+      <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-3" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
+      <p class="text-sm font-bold tracking-wider mb-2" style="color: rgb(180, 150, 135);">本輪幸運中獎得主</p>
+      
+      <!-- 得獎人名字 (超級大字體) -->
+      <p id="result-name" class="font-black text-6xl sm:text-7xl xl:text-8xl my-6 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
+      
+      <div class="mt-6 pt-6 border-t border-gray-100 max-w-xl mx-auto">
+        <p class="text-base text-gray-400 mb-2">賓客留下的小語：</p>
+        <p id="result-wish" class="text-xl sm:text-2xl italic px-6 py-4 rounded-3xl font-medium max-h-48 overflow-y-auto shadow-inner" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+      </div>
+
+      <!-- 重新抽獎 / 關閉按鈕，方便婚禮現場主持繼續操作 -->
+      <div class="mt-8">
+        <button id="close-result-btn" class="rounded-full px-12 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 20px;">
+          返回繼續抽獎
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <script>
     const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
@@ -153,7 +169,10 @@
     const ctx = canvas.getContext('2d');
     const chipsEl = document.getElementById('chips');
     const spinBtn = document.getElementById('spin-btn');
+    const gameContainer = document.getElementById('game-container');
     const resultArea = document.getElementById('result-area');
+    const resultCard = document.getElementById('result-card');
+    const closeResultBtn = document.getElementById('close-result-btn');
 
     function drawWheel() {
       const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
@@ -193,20 +212,20 @@
     }
 
     function spawnConfetti() {
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 80; i++) {
         const dot = document.createElement('div');
         dot.className = 'confetti-dot';
         dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
         const angle = Math.random() * Math.PI * 2;
-        const distance = 80 + Math.random() * 140;
+        const distance = 120 + Math.random() * 200;
         dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
         dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
         dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
         dot.style.left = '50%'; dot.style.top = '50%';
         dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.animationDuration = (1.4 + Math.random() * 0.6) + 's';
-        resultArea.appendChild(dot);
-        setTimeout(() => dot.remove(), 2000);
+        dot.style.animationDuration = (1.5 + Math.random() * 0.8) + 's';
+        resultCard.appendChild(dot);
+        setTimeout(() => dot.remove(), 2200);
       }
     }
 
@@ -217,14 +236,13 @@
       if (spinning || guestData.length < 2) return;
       spinning = true;
       spinBtn.style.opacity = '0.5';
-      resultArea.classList.add('hidden');
 
       const totalDeg = (7 + Math.random()*3)*360 + Math.random()*360;
       currentRotation += totalDeg;
       canvas.classList.add('spinning');
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-      // 旋轉時間 5.5 秒 (5600ms)
+      // 旋轉 5.5 秒後揭曉
       setTimeout(() => {
         canvas.classList.remove('spinning');
         spinning = false;
@@ -236,16 +254,28 @@
         const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
         
         const winner = guestData[winIdx];
-        const nameEl = document.getElementById('result-name');
-        nameEl.textContent = winner.name;
+        document.getElementById('result-name').textContent = winner.name;
         document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
         
-        resultArea.classList.remove('hidden');
-        
-        // 重新觸發得獎名單特效動畫
-        nameEl.className = 'font-black text-5xl sm:text-6xl my-4 result-reveal';
-        spawnConfetti();
+        // 隱藏背景轉盤與名單遊戲區塊，顯示滿版霸氣中獎彈窗
+        gameContainer.style.opacity = '0';
+        setTimeout(() => {
+          gameContainer.classList.add('hidden');
+          resultArea.classList.remove('hidden');
+          resultCard.className = 'w-full max-w-3xl rounded-[40px] p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4 result-modal-reveal';
+          spawnConfetti();
+        }, 300);
+
       }, 5600);
+    });
+
+    // 點擊關閉/返回繼續抽獎按鈕
+    closeResultBtn.addEventListener('click', () => {
+      resultArea.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      setTimeout(() => {
+        gameContainer.style.opacity = '1';
+      }, 50);
     });
 
     renderChips();
