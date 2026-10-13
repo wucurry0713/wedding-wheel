@@ -93,7 +93,7 @@
 
   <!-- 滿版霸氣中獎顯示彈窗 -->
   <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 hidden backdrop-blur-sm bg-black/10">
-    <!-- 放大框框寬度至 max-w-7xl 與寬裕的上下內距，足以容納最長留言不需捲動 -->
+    <!-- 放大至 max-w-7xl 寬度，以容納極長留言不需捲動 -->
     <div id="result-card" class="w-full max-w-7xl rounded-[44px] pt-12 pb-20 px-12 sm:px-20 text-center relative overflow-hidden shadow-2xl border-4" style="border-color: rgb(215, 193, 178);">
       
       <!-- 1. 標題往上移，避免擋到人臉 -->
@@ -236,3 +236,17 @@
         dot.style.left = '50%'; dot.style.top = '50%';
         dot.style.transform = 'translate(-50%, -50%)';
         dot.style.animationDuration = (1.5 + Math.random() * 0.8) + 's';
+        resultCard.appendChild(dot);
+        setTimeout(() => dot.remove(), 2200);
+      }
+    }
+
+    /* 修正內置函式名稱輔助 */
+    function SinCos(angle) { return Math.sin(angle); }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+
+      const totalDeg = (7 + Math.random()*3)*360 +
