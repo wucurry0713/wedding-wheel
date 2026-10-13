@@ -10,18 +10,26 @@
     * { font-family: 'DM Sans', sans-serif; }
     .chip { animation: chipIn 0.2s ease-out; }
     @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes resultReveal { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    /* 強化得獎名單出現的動態效果（放大彈跳與炫彩光影感） */
+    @keyframes resultReveal { 
+      0% { transform: scale(0.4) rotate(-5deg); opacity: 0; filter: blur(4px); } 
+      60% { transform: scale(1.08) rotate(2deg); opacity: 1; filter: blur(0px); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; } 
+    }
     @keyframes confettiBurst {
-      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+      0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.6); opacity: 0; }
     }
-    .result-reveal { animation: resultReveal 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    .result-reveal { animation: resultReveal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     .confetti-dot {
-      position: absolute; width: 10px; height: 10px; border-radius: 50%;
-      animation: confettiBurst 1.2s ease-out forwards;
+      position: absolute; width: 12px; height: 12px; border-radius: 50%;
+      animation: confettiBurst 1.5s ease-out forwards;
     }
+    
+    /* 轉盤旋轉時間拉長至 5.5 秒 */
     #wheel-canvas { transition: transform 0s; }
-    #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+    #wheel-canvas.spinning { transition: transform 5.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
     /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景，並保持完美比例 */
     body::before {
@@ -71,13 +79,13 @@
           開始抽獎！
         </button>
 
-        <!-- 中獎顯示區塊 -->
-        <div id="result-area" class="w-full max-w-[520px] rounded-3xl p-7 text-center hidden relative overflow-hidden shadow-lg backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
-          <p class="text-sm font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
-          <p id="result-name" class="font-extrabold text-4xl my-3" style="color: rgb(92, 78, 68);"></p>
-          <div class="mt-4 pt-3 border-t border-gray-100">
+        <!-- 中獎顯示區塊（名字明顯加大並具備強烈動態效果） -->
+        <div id="result-area" class="w-full max-w-[520px] rounded-3xl p-8 text-center hidden relative overflow-hidden shadow-2xl backdrop-blur-md bg-white/95" style="border: 3px solid rgb(215, 193, 178);">
+          <p class="text-base font-extrabold tracking-widest uppercase mb-2" style="color: rgb(160, 130, 115);">🎉 恭喜中獎得主 🎉</p>
+          <p id="result-name" class="font-black text-5xl sm:text-6xl my-4" style="color: rgb(92, 78, 68);"></p>
+          <div class="mt-4 pt-4 border-t border-gray-100">
             <p class="text-sm text-gray-400 mb-1">賓客留下的小語：</p>
-            <p id="result-wish" class="text-base italic px-5 py-3 rounded-2xl font-medium max-h-36 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+            <p id="result-wish" class="text-lg italic px-5 py-3 rounded-2xl font-medium max-h-36 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
           </div>
         </div>
       </div>
@@ -185,59 +193,12 @@
     }
 
     function spawnConfetti() {
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 60; i++) {
         const dot = document.createElement('div');
         dot.className = 'confetti-dot';
         dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
         const angle = Math.random() * Math.PI * 2;
-        const distance = 60 + Math.random() * 100;
+        const distance = 80 + Math.random() * 140;
         dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
         dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
-        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
-        dot.style.left = '50%'; dot.style.top = '50%';
-        dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.animationDuration = (1.2 + Math.random() * 0.5) + 's';
-        resultArea.appendChild(dot);
-        setTimeout(() => dot.remove(), 1800);
-      }
-    }
-
-    /* 修正內置函式名稱輔助 */
-    function SinCos(angle) { return Math.sin(angle); }
-
-    spinBtn.addEventListener('click', () => {
-      if (spinning || guestData.length < 2) return;
-      spinning = true;
-      spinBtn.style.opacity = '0.5';
-      resultArea.classList.add('hidden');
-
-      const totalDeg = (6 + Math.random()*3)*360 + Math.random()*360;
-      currentRotation += totalDeg;
-      canvas.classList.add('spinning');
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      setTimeout(() => {
-        canvas.classList.remove('spinning');
-        spinning = false;
-        spinBtn.style.opacity = '1';
-
-        const normalizedRotation = (currentRotation % 360 + 360) % 360;
-        const topAngle = (270 - normalizedRotation + 360) % 360;
-        const segmentAngle = 360 / guestData.length;
-        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
-        
-        const winner = guestData[winIdx];
-        document.getElementById('result-name').textContent = winner.name;
-        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
-        
-        resultArea.classList.remove('hidden');
-        resultArea.querySelector('#result-name').className = 'font-extrabold text-4xl my-3 result-reveal';
-        spawnConfetti();
-      }, 4100);
-    });
-
-    renderChips();
-    drawWheel();
-  </script>
-</body>
-</html>
+        dot.
