@@ -23,13 +23,14 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景 */
+    /* 修正背景照片比例，保持完整與適當霧面質感 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('SMV00141.jpg');
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
       z-index: 0;
       pointer-events: none;
@@ -84,67 +85,3 @@
   </main>
 
   <script>
-    const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
-    
-    let guestData = [
-      { name: "林家卉", wish: "耶 這天終於來囉💜💜🫶🏻" },
-      { name: "黃鈺雯", wish: "一定要幸福喔😍" },
-      { name: "林嫦花", wish: "真心相愛的兩個人，成為一生的承諾與陪伴。" },
-      { name: "王維", wish: "我愛你們" },
-      { name: "趙瑞華", wish: "恭喜！！！感動哭（期待）" },
-      { name: "郭庭羽", wish: "愛思萱～希望一直幸福下去❤️" },
-      { name: "王怡穎", wish: "永遠幸福美滿  希望當天我不會哭 哈哈" },
-      { name: "詹筑涵", wish: "Congrats~~~ ❤️❤️❤️" },
-      { name: "廖明慧", wish: "地表最佳夫妻" },
-      { name: "黃蓉姿", wish: "期待❤️❤️❤️" },
-      { name: "邱子格", wish: "天使萱要一直很幸福喔❤️" },
-      { name: "陳允碩", wish: "ㄎ 恭喜" },
-      { name: "王柏超", wish: "恭喜科和思萱，終於參加到你們的婚禮了哈哈哈，而且看得出來新郎瘦身有成，超猛！期待那天與你們相見！" },
-      { name: "中中", wish: "恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍" },
-      { name: "林思妤", wish: "太感人溜 新娘好美😍 新郎變瘦了" },
-      { name: "范睿瑋", wish: "恭喜妳 總算是嫁出去了～" },
-      { name: "李思穎", wish: "親愛的姊姊、姊夫：  恭喜你們步入人生的新階段。  今天看著你們攜手站在這裡，心中有許多感動與祝福。雖然我和姊姊平常不是那種會把關心掛在嘴邊的人，但身為妹妹，看見妳找到願意相伴一生的人，真的很替妳開心。  婚姻是一段新的旅程，未來的日子裡或許有歡笑，也會有挑戰，但希望你們能一直記得今天選擇彼此的心意。在開心的時候一起分享喜悅，在困難的時候互相扶持，在平凡的日子裡依然珍惜身邊的彼此。  姊姊，希望妳未來的每一天都能被愛、被理解、被珍惜；姊夫，也謝謝你願意陪伴她走向未來的人生。從今以後，希望你們成為彼此最溫暖的依靠，一起創造屬於你們的幸福。  衷心祝福你們新婚快樂、百年好合，願往後的每一個春夏秋冬，都有彼此相伴；願未來的每一天，都比今天更加幸福美滿。" },
-      { name: "韓欣達", wish: "❤️" },
-      { name: "李通聖", wish: "愛你們呦😘😘😘" },
-      { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
-      { name: "林柔安", wish: "恭喜兩位！我兩小可以幫我訂兒童餐嗎😌" },
-      { name: "林汶憲", wish: "生一個生一個" },
-      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
-      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
-      { name: "洪米奇", wish: "當媽咪前最後的自由day，就給我們李萱萱啦！" },
-      { name: "林佳翰", wish: "恭喜老爺🥰 賀喜夫人🥰" },
-      { name: "Claire Tseng", wish: "My 萱 愛你😘" },
-      { name: "張瓊文", wish: "終於被我等到了 要永遠幸福美麗❤️" },
-      { name: "文晨宇", wish: "祝思萱科皜百年好合天天幸福 P.s這段祝福有沒有可以摸彩？" },
-      { name: "林翠仙", wish: "恭喜科皜娶得美嬌娘" },
-      { name: "謝佩吟", wish: "新婚快樂🎊" },
-      { name: "吳庭宇", wish: "恭喜你們，祝彼得老爺早生貴子🥹" },
-      { name: "吳文寶", wish: "恭喜恭喜🎉 百年好合 永結同心" },
-      { name: "吳孟真", wish: "祝你們幸福快樂一輩子❤️" },
-      { name: "Cecilia", wish: "新娘超美！新婚快樂🩷🩷🩷🩷🩷" },
-      { name: "呂鈺浩", wish: "恭喜發財 早生貴子 :D" },
-      { name: "陳冠儒", wish: "身體健康萬事如意早生貴子白頭偕老愛您" },
-      { name: "李長峰", wish: "兄弟恭喜啦！期待你們的大囍日子😍" },
-      { name: "鄧家駿", wish: "恭喜兄弟👍" },
-      { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
-      { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
-      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈  剛出生時的小公主.國中時的叛逆女孩.大學時的獨立社會人.現在的妳即將和科皜攜手一起走向未來的階段，願你們帶著滿滿祝福和愛，相輔相持一輩子。要一直一直一直的幸福呦！^.^" },
-      { name: "余成毅", wish: "恭喜你們❤️" },
-      { name: "林余柔", wish: "要一直幸福唷😍" },
-      { name: "周冠良", wish: "永遠幸福👊" },
-      { name: "黃品智", wish: "希望有空氣投籃" },
-      { name: "陳思齊", wish: "早生貴子👶🏻" },
-      { name: "孫喬新", wish: "幸福久久" }
-    ];
-
-    let spinning = false;
-    let currentRotation = 0;
-
-    const canvas = document.getElementById('wheel-canvas');
-    const ctx = canvas.getContext('2d');
-    const chipsEl = document.getElementById('chips');
-    const spinBtn = document.getElementById('spin-btn');
-    const resultArea = document.getElementById('result-area');
-    const countNum = document.getElementById('count-num');
-
-    function draw
