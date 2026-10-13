@@ -23,13 +23,14 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 滿版背景呈現 */
+    /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景，並保持完美比例 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('SMV00141.jpg');
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
       z-index: 0;
       pointer-events: none;
@@ -38,33 +39,33 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
-  <!-- 改為寬幅滿版容器，充分利用左右空間 -->
-  <main class="relative z-10 w-full max-w-[1440px] mx-auto px-8 py-12">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+  <!-- 擴大滿版容器限制，大幅提升大螢幕上的滿版震撼感 -->
+  <main class="relative z-10 w-full max-w-[1500px] mx-auto px-4 sm:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
       
-      <!-- 左側：放大標題與留言列表 (佔 5 欄) -->
+      <!-- 左側：標題與祝福清單 (佔 5 欄) -->
       <div class="flex flex-col gap-6 lg:col-span-5 text-center lg:text-left">
         <header>
-          <h1 class="text-5xl md:text-7xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Prize Wheel</h1>
-          <p class="mt-3 text-xl md:text-2xl font-medium" style="color: rgb(112, 96, 86);">A special blessing for our wedding day!</p>
+          <h1 class="text-5xl sm:text-6xl xl:text-7xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Prize Wheel</h1>
+          <p class="mt-3 text-xl sm:text-2xl font-semibold" style="color: rgb(112, 96, 86);">A special blessing for our wedding day!</p>
         </header>
 
-        <!-- 側邊留言清單 (加大高度與寬度) -->
-        <div class="w-full rounded-3xl p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 560px;">
+        <!-- 側邊留言清單 (適度拉寬與放大字體) -->
+        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 560px;">
           <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-            <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">📋 祝福列表 (<span id="count-num">48</span>)</span>
+            <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
             <span class="text-sm text-gray-400">可上下滾動檢視</span>
           </div>
-          <div id="chips" class="flex flex-col gap-3 overflow-y-auto pr-2"></div>
+          <div id="chips" class="flex flex-col gap-3 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
-      <!-- 右側：放大轉盤與抽獎結果 (佔 7 欄，轉盤右移放大) -->
-      <div class="flex flex-col items-center gap-8 lg:col-span-7 lg:pl-8">
+      <!-- 右側：大尺寸轉盤與抽獎結果 (佔 7 欄，轉盤明顯放大) -->
+      <div class="flex flex-col items-center gap-8 lg:col-span-7">
         <div class="relative">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
-          <!-- 放大轉盤尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(580px,100vw);height:min(580px,100vw);"></canvas>
+          <!-- 轉盤實體與顯示尺寸放大 -->
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(560px, 92vw); height:min(560px, 92vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-20 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 26px;">
@@ -72,10 +73,10 @@
         </button>
 
         <!-- 中獎顯示區塊 -->
-        <div id="result-area" class="w-full max-w-[580px] rounded-3xl p-8 text-center hidden relative overflow-hidden shadow-xl backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
+        <div id="result-area" class="w-full max-w-[560px] rounded-3xl p-7 text-center hidden relative overflow-hidden shadow-lg backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
           <p class="text-sm font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
           <p id="result-name" class="font-extrabold text-4xl my-3" style="color: rgb(92, 78, 68);"></p>
-          <div class="mt-4 pt-4 border-t border-gray-100">
+          <div class="mt-4 pt-3 border-t border-gray-100">
             <p class="text-sm text-gray-400 mb-1">賓客留下的小語：</p>
             <p id="result-wish" class="text-base italic px-5 py-3 rounded-2xl font-medium max-h-36 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
           </div>
@@ -150,7 +151,7 @@
     const countNum = document.getElementById('count-num');
 
     function drawWheel() {
-      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 15;
+      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
       ctx.clearRect(0,0,w,h);
       if (!guestData.length) return;
       const arc = (Math.PI*2)/guestData.length;
@@ -163,4 +164,84 @@
         ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
         ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
         
-        ctx.strokeStyle = 'rgba(255,2
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `700 ${Math.min(26, 420/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      countNum.textContent = guestData.length;
+      guestData.forEach((item) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip flex items-center justify-between px-4 py-3 rounded-2xl text-base md:text-lg font-medium w-full shadow-xs';
+        chip.style.background = 'rgb(247, 243, 238)'; 
+        chip.style.color = 'rgb(92, 78, 68)';
+        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-4 text-gray-500 text-right italic">"${item.wish}"</span>`;
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 100;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1.2 + Math.random() * 0.5) + 's';
+        resultArea.appendChild(dot);
+        setTimeout(() => dot.remove(), 1800);
+      }
+    }
+
+    /* 修正內置函式名稱輔助 */
+    function SinCos(angle) { return Math.sin(angle); }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+      resultArea.classList.add('hidden');
+
+      const totalDeg = (6 + Math.random()*3)*360 + Math.random()*360;
+      currentRotation += totalDeg;
+      canvas.classList.add('spinning');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        canvas.classList.remove('spinning');
+        spinning = false;
+        spinBtn.style.opacity = '1';
+
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const topAngle = (270 - normalizedRotation + 360) % 360;
+        const segmentAngle = 360 / guestData.length;
+        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
+        
+        const winner = guestData[winIdx];
+        document.getElementById('result-name').textContent = winner.name;
+        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        
+        resultArea.classList.remove('hidden');
+        resultArea.querySelector('#result-name').className = 'font-extrabold text-4xl my-3 result-reveal';
+        spawnConfetti();
+      }, 4100);
+    });
+
+    renderChips();
+    drawWheel();
+  </script>
+</body>
+</html>
