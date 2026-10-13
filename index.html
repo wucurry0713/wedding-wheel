@@ -26,35 +26,34 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
-  <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-10">
+  <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：標題與留言檢視列表 -->
-      <div class="flex flex-col gap-5 md:col-span-6 text-center md:text-left">
+      <!-- 左側：放大英文標題與留言檢視列表 -->
+      <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
-          <span class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase shadow-sm" style="background: rgb(227, 213, 202); color: rgb(92, 78, 68);">Wedding Lucky Draw</span>
-          <h1 class="mt-3 text-4xl md:text-5xl" style="color: rgb(92, 78, 68); font-weight: 800; letter-spacing: -0.03rem;">婚禮祝福抽紅包</h1>
-          <p class="mt-2 text-base md:text-lg" style="color: rgb(138, 122, 110); font-weight: 400;">從表單留言名單中抽出一位幸運賓客！</p>
+          <h1 class="text-5xl md:text-6xl tracking-wider uppercase" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
+          <p class="mt-2 text-lg md:text-xl font-medium" style="color: rgb(138, 122, 110);">尋找現場最幸運的賓客抽大獎！</p>
         </header>
 
-        <!-- 側邊留言清單 -->
-        <div class="w-full rounded-2xl p-5 shadow-sm text-left flex flex-col" style="background: rgb(255, 255, 255); border: 1px solid rgb(238, 230, 221); max-height: 420px;">
-          <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100">
-            <span class="text-sm font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
+        <!-- 側邊留言清單（放大高度） -->
+        <div class="w-full rounded-2xl p-6 shadow-md text-left flex flex-col" style="background: rgb(255, 255, 255); border: 1px solid rgb(238, 230, 221); max-height: 520px;">
+          <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-100">
+            <span class="text-base font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
             <span class="text-xs text-gray-400">可上下滾動檢視</span>
           </div>
-          <div id="chips" class="flex flex-col gap-2 overflow-y-auto pr-1"></div>
+          <div id="chips" class="flex flex-col gap-2.5 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
-      <!-- 右側：大尺寸轉盤與抽獎結果 -->
+      <!-- 右側：放大尺寸轉盤與抽獎結果 -->
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
-          <div class="absolute top-[-22px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:12px solid transparent;border-right:12px solid transparent;border-top:20px solid rgb(92, 78, 68);"></div>
-          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-lg" style="width:min(420px,100vw);height:min(420px,100vw); background: white;"></canvas>
+          <div class="absolute top-[-26px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid rgb(92, 78, 68);"></div>
+          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-xl" style="width:min(500px,100vw);height:min(500px,100vw); background: white;"></canvas>
         </div>
         
-        <button id="spin-btn" class="rounded-full px-12 py-3.5 font-bold shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 20px;">
+        <button id="spin-btn" class="rounded-full px-16 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 22px;">
           開始抽獎！
         </button>
 
@@ -75,7 +74,6 @@
   <script>
     const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
     
-    // 正式 48 筆真實賓客名單（已排除測試資料）
     let guestData = [
       { name: "林家卉", wish: "耶 這天終於來囉💜💜🫶🏻" },
       { name: "黃鈺雯", wish: "一定要幸福喔😍" },
@@ -138,13 +136,13 @@
     const countNum = document.getElementById('count-num');
 
     function drawWheel() {
-      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 8;
+      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 10;
       ctx.clearRect(0,0,w,h);
       if (!guestData.length) return;
       const arc = (Math.PI*2)/guestData.length;
       
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
-      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 5; ctx.stroke();
+      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 6; ctx.stroke();
       
       guestData.forEach((item, i) => {
         const start = i * arc, end = start + arc;
@@ -156,8 +154,8 @@
         ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
-        ctx.font = `700 ${Math.min(22, 340/guestData.length)}px 'DM Sans', sans-serif`;
-        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 15, 0);
+        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
         ctx.restore();
       });
     }
@@ -167,7 +165,7 @@
       countNum.textContent = guestData.length;
       guestData.forEach((item) => {
         const chip = document.createElement('div');
-        chip.className = 'chip flex items-center justify-between px-3 py-2 rounded-xl text-xs md:text-sm font-medium w-full shadow-2xs';
+        chip.className = 'chip flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm md:text-base font-medium w-full shadow-2xs';
         chip.style.background = 'rgb(247, 243, 238)'; 
         chip.style.color = 'rgb(92, 78, 68)';
         chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-3 text-gray-500 text-right italic">"${item.wish}"</span>`;
