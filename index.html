@@ -92,17 +92,17 @@
   </main>
 
   <!-- 滿版霸氣中獎顯示彈窗 -->
-  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-sm bg-black/10">
-    <!-- 放大至 max-w-7xl 寬度，以容納極長留言不需捲動 -->
-    <div id="result-card" class="w-full max-w-7xl rounded-[44px] pt-12 pb-16 px-10 sm:px-16 text-center relative overflow-hidden shadow-2xl border-4" style="border-color: rgb(215, 193, 178);">
+  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 hidden backdrop-blur-sm bg-black/10">
+    <!-- 放大框框寬度至 max-w-7xl 與寬裕的上下內距，足以容納最長留言不需捲動 -->
+    <div id="result-card" class="w-full max-w-7xl rounded-[44px] pt-12 pb-20 px-12 sm:px-20 text-center relative overflow-hidden shadow-2xl border-4" style="border-color: rgb(215, 193, 178);">
       
-      <!-- 1. 標題往上移，避開人臉 -->
+      <!-- 1. 標題往上移，避免擋到人臉 -->
       <div class="mb-1">
         <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-1" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
         <p class="text-sm sm:text-base font-bold tracking-wider" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
       </div>
       
-      <!-- 2. 名字位置 -->
+      <!-- 2. 名字往下移一點 -->
       <p id="result-name" class="font-black text-6xl sm:text-7xl xl:text-8xl mt-4 mb-4 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
       
       <!-- 4. 長感言直接顯示在背景上，無須框框與捲動限制 -->
@@ -111,7 +111,7 @@
         <p id="result-wish" class="text-xl sm:text-2xl italic font-medium leading-relaxed" style="color: rgb(112, 96, 86);"></p>
       </div>
 
-      <!-- 3. Back 按鈕縮小並固定在右下方 -->
+      <!-- 3. Back 按鈕縮小一半，放置於框框右下方 -->
       <div class="absolute bottom-6 right-8 sm:bottom-8 sm:right-12">
         <button id="close-result-btn" class="rounded-full px-8 py-2.5 font-bold shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 16px;">
           Back
@@ -188,4 +188,51 @@
 
     function drawWheel() {
       const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
-      ctx.clearRect(
+      ctx.clearRect(0,0,w,h);
+      if (!guestData.length) return;
+      const arc = (Math.PI*2)/guestData.length;
+      
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
+      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 8; ctx.stroke();
+      
+      guestData.forEach((item, i) => {
+        const start = i * arc, end = start + arc;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `700 ${Math.min(26, 420/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      guestData.forEach((item) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip flex items-center justify-between px-4 py-3 rounded-2xl text-base md:text-lg font-medium w-full shadow-xs';
+        chip.style.background = 'rgb(247, 243, 238)'; 
+        chip.style.color = 'rgb(92, 78, 68)';
+        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-4 text-gray-500 text-right italic">"${item.wish}"</span>`;
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 80; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 120 + Math.random() * 200;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1.5 + Math.random() * 0.8) + 's';
