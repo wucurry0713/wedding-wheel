@@ -29,7 +29,7 @@
     
     /* 轉盤旋轉時間 5.5 秒 */
     #wheel-canvas { transition: transform 0s; }
-    #wheel-canvas.spinning { transition: transform 5.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
+    #wheel-canvas.spinning { transition: transform 9.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
     /* 首頁背景：讀取 SMV00141.jpg 做為霧面浮水印背景 */
     body::before {
@@ -80,7 +80,7 @@
         <div class="relative">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(600px, 92vw); height:min(600px, 92vw);"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(1000px, 92vw); height:min(1000px, 92vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-24 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 28px;">
