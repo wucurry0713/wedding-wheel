@@ -73,7 +73,7 @@
         <div class="relative">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(520px, 92vw); height:min(520px, 92vw);"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(600px, 92vw); height:min(600px, 92vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-24 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 28px;">
@@ -89,20 +89,20 @@
     <div id="result-card" class="w-full max-w-3xl rounded-[40px] p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl bg-white/95 border-4" style="border-color: rgb(215, 193, 178);">
       
       <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-3" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
-      <p class="text-sm font-bold tracking-wider mb-2" style="color: rgb(180, 150, 135);">本輪幸運中獎得主</p>
+      <p class="text-sm font-bold tracking-wider mb-2" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
       
       <!-- 得獎人名字 (超級大字體) -->
       <p id="result-name" class="font-black text-6xl sm:text-7xl xl:text-8xl my-6 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
       
       <div class="mt-6 pt-6 border-t border-gray-100 max-w-xl mx-auto">
-        <p class="text-base text-gray-400 mb-2">賓客留下的小語：</p>
+        <p class="text-base text-gray-400 mb-2">Blessings：</p>
         <p id="result-wish" class="text-xl sm:text-2xl italic px-6 py-4 rounded-3xl font-medium max-h-48 overflow-y-auto shadow-inner" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
       </div>
 
       <!-- 重新抽獎 / 關閉按鈕，方便婚禮現場主持繼續操作 -->
       <div class="mt-8">
         <button id="close-result-btn" class="rounded-full px-12 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 20px;">
-          返回繼續抽獎
+          Back
         </button>
       </div>
 
