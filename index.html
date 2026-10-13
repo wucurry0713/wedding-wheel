@@ -23,16 +23,16 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 婚紗照浮水印背景設定 */
+    /* 內嵌婚紗照浮水印背景 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background-image: url('input_file_8.png');
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='); /* 這裡會由下方實際圖片取代 */
       background-size: cover;
       background-position: center;
-      opacity: 0.15; /* 浮水印感，不影響文字閱讀 */
-      filter: blur(4px) brightness(1.1); /* 微微模糊與調亮 */
+      opacity: 0.18;
+      filter: blur(5px) brightness(1.1);
       z-index: 0;
       pointer-events: none;
     }
@@ -40,10 +40,15 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
+  <style>
+    body::before {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAJQAQMAAABpB0kBAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUeF7twQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAODWAcgIAAG1GgR5AAAAAElFTkSuQmCC'); /* 完整內嵌婚紗照 */
+    }
+  </style>
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：放大英文標題與留言檢視列表 -->
+      <!-- 左側：標題與留言檢視列表 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
           <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
@@ -60,7 +65,7 @@
         </div>
       </div>
 
-      <!-- 右側：放大尺寸轉盤與抽獎結果 -->
+      <!-- 右側：大尺寸轉盤與抽獎結果 -->
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
           <div class="absolute top-[-26px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid rgb(92, 78, 68);"></div>
