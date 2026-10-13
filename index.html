@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>婚禮祝福抽紅包系統</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    .chip { animation: chipIn 0.2s ease-out; }
+    @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes resultReveal { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes confettiBurst {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+    }
+    .result-reveal { animation: resultReveal 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    .confetti-dot {
+      position: absolute; width: 8px; height: 8px; border-radius: 50%;
+      animation: confettiBurst 1s ease-out forwards;
+    }
+    #wheel-canvas { transition: transform 0s; }
+    #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+</head>
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
+  <main class="relative z-10 w-full max-w-4xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <!-- 左側：標題與名單預覽 -->
+      <div class="flex flex-col gap-4 text-center md:text-left">
+        <header>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase" style="background: rgb(227, 213, 202); color: rgb(92, 78, 68);">Wedding Lucky Draw</span>
+          <h1 class="mt-2" style="color: rgb(92, 78, 68); font-weight: 800; font-size: 32px; letter-spacing: -0.05rem;">婚禮祝福抽紅包</h1>
+          <p class="mt-1" style="color: rgb(138, 122, 110); font-weight: 400; font-size: 14px;">從 48 位留下祝福的賓客中抽出一位幸運兒！</p>
+        </header>
+        <div class="w-full rounded-2xl p-4 shadow-sm max-h-64 overflow-y-auto text-left" style="background: rgb(255, 255, 255); border: 1px solid rgb(238, 230, 221);">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold" style="color: rgb(92, 78, 68);">已匯入的祝福名單 (<span id="count-num">48</span>)</span>
+          </div>
+          <div id="chips" class="flex flex-col gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- 右側：轉盤與抽獎結果 -->
+      <div class="flex flex-col items-center gap-4">
+        <div class="relative">
+          <div class="absolute top-[-16px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:9px solid transparent;border-right:9px solid transparent;border-top:14px solid rgb(92, 78, 68);"></div>
+          <canvas id="wheel-canvas" width="700" height="700" class="rounded-full shadow-md" style="width:min(300px,100vw);height:min(300px,100vw); background: white;"></canvas>
+        </div>
+        <button id="spin-btn" class="rounded-full px-8 py-2.5 font-bold shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 18px;">
+          開始抽獎！
+        </button>
+
+        <!-- 中獎顯示區塊 -->
+        <div id="result-area" class="w-full rounded-2xl p-4 text-center hidden relative overflow-hidden shadow-sm" style="background: rgb(255, 255, 255); border: 1px solid rgb(227, 213, 202);">
+          <p class="text-xs font-medium tracking-wide uppercase" style="color: rgb(180, 150, 135);">🎉 幸運得主 🎉</p>
+          <p id="result-name" class="mt-1 font-extrabold text-xl" style="color: rgb(92, 78, 68);"></p>
+          <p id="result-wish" class="mt-2 text-xs italic px-3 py-1.5 rounded-lg" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
+    
+    let guestData = [
+      { name: "Claire Tseng", wish: "Congrats~~~ 祝福你們幸福美滿！" },
+      { name: "Cecilia", wish: "新婚快樂！永浴愛河 💕" },
+      { name: "Ruru Tsai", wish: "恭喜老爺賀喜夫人，早生貴子！" },
+      { name: "Jeremy", wish: "Love u! 祝百年好合！" },
+      { name: "A-wei", wish: "新婚快樂，甜甜蜜蜜一輩子！" },
+      { name: "Yvonne", wish: "祝你們每一天都像今天一樣幸福！" },
+      { name: "Jason", wish: "恭喜啦！紅包拿來～開玩笑的祝幸福美滿！" },
+      { name: "Kelly", wish: "好替你們開心，要一直幸福下去喔！" },
+      { name: "David", wish: "百年好合，早造一個寶寶來玩！" },
+      { name: "Vivian", wish: "新婚快樂，新婚誌喜！" },
+      { name: "Eric", wish: "恭喜！幸福久久！" },
+      { name: "Alice", wish: "太感動了，祝你們永浴愛河！" },
+      { name: "Frank", wish: "祝早生貴子，幸福快樂！" },
+      { name: "Grace", wish: "新婚快樂，永遠恩愛！" },
+      { name: "Hao", wish: "恭喜老弟/兄弟娶得美嬌娘！" },
+      { name: "Joy", wish: "祝你們甜甜蜜蜜，攜手一生！" },
+      { name: "Kevin", wish: "恭喜恭喜！祝白頭偕老！" },
+      { name: "Lilian", wish: "好浪漫的一場婚禮，要一直幸福喔！" },
+      { name: "Mark", wish: "祝新婚愉快，大吉大利！" },
+      { name: "Nita", wish: "恭喜尋得真愛，幸福一輩子！" },
+      { name: "Owen", wish: "新婚快樂！早日解鎖新身份～" },
+      { name: "Penny", wish: "祝你們每一天都充滿陽光與笑聲！" },
+      { name: "Queena", wish: "恭喜啦！一定要幸福喔！" },
+      { name: "Ray", wish: "祝永結同心，百年好合！" },
+      { name: "Sora", wish: "新婚快樂，攜手共創美好未來！" },
+      { name: "Tina", wish: "恭喜！新婚生活幸福美滿！" },
+      { name: "Una", wish: "祝你們甜甜蜜蜜到永遠～" },
+      { name: "Vince", wish: "恭喜步入人生下一個階段！" },
+      { name: "Wendy", wish: "祝新婚快樂，永遠像初戀一樣甜！" },
+      { name: "Xavier", wish: "恭喜老友！祝永浴愛河！" },
+      { name: "Zoe", wish: "太棒了！祝你們幸福久久！" },
+      { name: "Benson", wish: "新婚快樂，早生貴子！" },
+      { name: "Cynthia", wish: "祝你們牽手一世，幸福一生！" },
+      { name: "Doris", wish: "恭喜！一定要一直幸福下去！" },
+      { name: "Eason", wish: "祝新婚愉快，萬事如意！" },
+      { name: "Fiona", wish: "恭喜找到命定的另一半 💕" },
+      { name: "Gary", wish: "祝百年好合，永結同心！" },
+      { name: "Hannah", wish: "新婚快樂！祝你們幸福美滿！" },
+      { name: "Ian", wish: "恭喜恭喜！祝白頭偕老！" },
+      { name: "Jasmine", wish: "祝新婚生活充滿驚喜與甜蜜！" },
+      { name: "Ken", wish: "恭喜啦！祝早生貴子！" },
+      { name: "Linda", wish: "祝你們永遠恩愛，幸福快樂！" },
+      { name: "Mandy", wish: "新婚快樂！祝你們攜手一生！" },
+      { name: "Nathan", wish: "恭喜步入禮堂，祝永浴愛河！" },
+      { name: "Olivia", wish: "祝新婚愉快，甜甜蜜蜜！" },
+      { name: "Paul", wish: "恭喜好兄弟！祝幸福美滿！" },
+      { name: "Queenie", wish: "祝你們每一天都幸福快樂！" },
+      { name: "Ryan", wish: "新婚快樂，百年好合！" }
+    ];
+
+    let spinning = false;
+    let currentRotation = 0;
+
+    const canvas = document.getElementById('wheel-canvas');
+    const ctx = canvas.getContext('2d');
+    const chipsEl = document.getElementById('chips');
+    const spinBtn = document.getElementById('spin-btn');
+    const resultArea = document.getElementById('result-area');
+    const countNum = document.getElementById('count-num');
+
+    function drawWheel() {
+      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 6;
+      ctx.clearRect(0,0,w,h);
+      if (!guestData.length) return;
+      const arc = (Math.PI*2)/guestData.length;
+      
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
+      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 4; ctx.stroke();
+      
+      guestData.forEach((item, i) => {
+        const start = i * arc, end = start + arc;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+        
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `600 ${Math.min(18, 280/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 9 ? item.name.slice(0,8)+'…' : item.name, r - 10, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      countNum.textContent = guestData.length;
+      guestData.forEach((item) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip flex items-center justify-between px-2.5 py-1 rounded text-xs font-medium w-full';
+        chip.style.background = 'rgb(247, 243, 238)'; 
+        chip.style.color = 'rgb(92, 78, 68)';
+        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-2 text-gray-500 text-right">"${item.wish}"</span>`;
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 30; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 40 + Math.random() * 80;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1 + Math.random() * 0.4) + 's';
+        resultArea.appendChild(dot);
+        setTimeout(() => dot.remove(), 1500);
+      }
+    }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+      resultArea.classList.add('hidden');
+
+      const totalDeg = (5 + Math.random()*3)*360 + Math.random()*360;
+      currentRotation += totalDeg;
+      canvas.classList.add('spinning');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        canvas.classList.remove('spinning');
+        spinning = false;
+        spinBtn.style.opacity = '1';
+
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const topAngle = (270 - normalizedRotation + 360) % 360;
+        const segmentAngle = 360 / guestData.length;
+        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
+        
+        const winner = guestData[winIdx];
+        document.getElementById('result-name').textContent = winner.name;
+        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        
+        resultArea.classList.remove('hidden');
+        resultArea.querySelector('#result-name').className = 'mt-1 font-extrabold text-xl result-reveal';
+        spawnConfetti();
+      }, 4100);
+    });
+
+    renderChips();
+    drawWheel();
+  </script>
+</body>
+</html>
