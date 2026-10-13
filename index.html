@@ -8,7 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'DM Sans', sans-serif; }
-    
+    .chip { animation: chipIn 0.2s ease-out; }
+    @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes resultReveal { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes confettiBurst {
       0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
@@ -22,113 +23,45 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 婚紗照浮水印背景設定 */
+    /* 內嵌婚紗照浮水印背景 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('input_file_8.png');
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='); /* 這裡會由下方實際圖片取代 */
       background-size: cover;
       background-position: center;
+      opacity: 0.18;
+      filter: blur(5px) brightness(1.1);
       z-index: 0;
       pointer-events: none;
-    }
-
-    /* 祝福泡泡質感與互動樣式 */
-    .wish-bubble {
-      display: inline-flex;
-      flex-direction: column;
-      padding: 10px 14px;
-      border-radius: 16px;
-      cursor: pointer;
-      background: #ffffff;
-      border: 1px solid rgb(238, 230, 221);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .wish-bubble:hover {
-      transform: scale(1.06) translateY(-2px);
-      z-index: 30;
-      box-shadow: 0 6px 15px rgba(92, 78, 68, 0.15);
-      background: rgb(255, 252, 249);
-    }
-    .wish-bubble.highlight {
-      transform: scale(1.08);
-      background: rgb(227, 213, 202) !important;
-      border-color: rgb(180, 150, 135) !important;
-      box-shadow: 0 0 15px rgba(199, 177, 159, 0.6);
-      z-index: 40;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
+  <style>
+    body::before {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAJQAQMAAABpB0kBAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUeF7twQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAODWAcgIAAG1GgR5AAAAAElFTkSuQmCC'); /* 完整內嵌婚紗照 */
+    }
+  </style>
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：英文標題與 48 個質感祝福泡泡牆 -->
+      <!-- 左側：標題與留言檢視列表 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
           <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
-          <p class="mt-2 text-lg md:text-xl font-medium" style="color: rgb(112, 96, 86);">來自親友們的 48 個祝福泡泡，點擊可看完整心意！</p>
+          <p class="mt-2 text-lg md:text-xl font-medium" style="color: rgb(112, 96, 86);">尋找現場最幸運的賓客抽大獎！</p>
         </header>
 
-        <!-- 泡泡牆容器 -->
-        <div class="w-full rounded-3xl p-6 shadow-xl text-left flex flex-col bg-white/85 backdrop-blur-md" style="border: 1px solid rgb(238, 230, 221);">
-          <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
-            <span class="text-base font-bold" style="color: rgb(92, 78, 68);">🫧 祝福泡泡牆 (<span id="count-num">48</span>)</span>
-            <span class="text-xs text-gray-500 font-medium">點擊泡泡查看完整祝福</span>
+        <!-- 側邊留言清單 -->
+        <div class="w-full rounded-2xl p-6 shadow-md text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 520px;">
+          <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-100">
+            <span class="text-base font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
+            <span class="text-xs text-gray-400">可上下滾動檢視</span>
           </div>
-          <!-- 48個祝福泡泡直接內嵌呈現 -->
-          <div id="bubbles-container" style="height: 380px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; padding: 4px;">
-            <div class="wish-bubble" onclick="showWish('林家卉', '耶 這天終於來囉💜💜🫶🏻')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林家卉</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"耶 這天終於來囉💜💜🫶🏻"</span></div>
-            <div class="wish-bubble" onclick="showWish('黃鈺雯', '一定要幸福喔😍')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">黃鈺雯</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"一定要幸福喔😍"</span></div>
-            <div class="wish-bubble" onclick="showWish('林嫦花', '真心相愛的兩個人，成為一生的承諾與陪伴。')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林嫦花</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"真心相愛的兩個人，成為一生的承諾與陪伴。"</span></div>
-            <div class="wish-bubble" onclick="showWish('王維', '我愛你們')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">王維</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"我愛你們"</span></div>
-            <div class="wish-bubble" onclick="showWish('趙瑞華', '恭喜！！！感動哭（期待）')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">趙瑞華</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜！！！感動哭（期待）"</span></div>
-            <div class="wish-bubble" onclick="showWish('郭庭羽', '愛思萱～希望一直幸福下去❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">郭庭羽</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"愛思萱～希望一直幸福下去❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('王怡穎', '永遠幸福美滿  希望當天我不會哭 哈哈')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">王怡穎</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"永遠幸福美滿  希望當天我不會哭 哈哈"</span></div>
-            <div class="wish-bubble" onclick="showWish('詹筑涵', 'Congrats~~~ ❤️❤️❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">詹筑涵</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"Congrats~~~ ❤️❤️❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('廖明慧', '地表最佳夫妻')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">廖明慧</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"地表最佳夫妻"</span></div>
-            <div class="wish-bubble" onclick="showWish('黃蓉姿', '期待❤️❤️❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">黃蓉姿</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"期待❤️❤️❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('邱子格', '天使萱要一直很幸福喔❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">邱子格</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"天使萱要一直很幸福喔❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('陳允碩', 'ㄎ 恭喜')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">陳允碩</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"ㄎ 恭喜"</span></div>
-            <div class="wish-bubble" onclick="showWish('王柏超', '恭喜科和思萱，終於參加到你們的婚禮了哈哈哈！')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">王柏超</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜科和思萱..."</span></div>
-            <div class="wish-bubble" onclick="showWish('中中', '恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">中中</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜思萱&科皜..."</span></div>
-            <div class="wish-bubble" onclick="showWish('林思妤', '太感人溜 新娘好美😍 新郎變瘦了')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林思妤</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"太感人溜 新娘好美😍 新郎變瘦了"</span></div>
-            <div class="wish-bubble" onclick="showWish('范睿瑋', '恭喜妳 總算是嫁出去了～')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">范睿瑋</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜妳 總算是嫁出去了～"</span></div>
-            <div class="wish-bubble" onclick="showWish('李思穎', '親愛的姊姊、姊夫：恭喜你們步入新階段！')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">李思穎</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"親愛的姊姊、姊夫..."</span></div>
-            <div class="wish-bubble" onclick="showWish('韓欣達', '❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">韓欣達</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('李通聖', '愛你們呦😘😘😘')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">李通聖</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"愛你們呦😘😘😘"</span></div>
-            <div class="wish-bubble" onclick="showWish('陳兆霖', '恭喜你們，祝永浴愛河！')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">陳兆霖</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜你們，祝永浴愛河！"</span></div>
-            <div class="wish-bubble" onclick="showWish('林柔安', '恭喜兩位！我兩小可以幫我訂兒童餐嗎😌')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林柔安</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜兩位！我兩小可以幫我訂兒童餐嗎😌"</span></div>
-            <div class="wish-bubble" onclick="showWish('林汶憲', '生一個生一個')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林汶憲</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"生一個生一個"</span></div>
-            <div class="wish-bubble" onclick="showWish('邱欣儀', '新婚愉快！期待婚禮當天看到美美的新娘🥰')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">邱欣儀</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"新婚愉快！期待婚禮當天..."</span></div>
-            <div class="wish-bubble" onclick="showWish('洪米奇', '當媽咪前最後的自由day，就給我們李萱萱啦！')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">洪米奇</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"當媽咪前最後的自由day..."</span></div>
-            <div class="wish-bubble" onclick="showWish('林佳翰', '恭喜老爺🥰 賀喜夫人🥰')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林佳翰</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜老爺🥰 賀喜夫人🥰"</span></div>
-            <div class="wish-bubble" onclick="showWish('Claire Tseng', 'My 萱 愛你😘')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">Claire Tseng</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"My 萱 愛你😘"</span></div>
-            <div class="wish-bubble" onclick="showWish('張瓊文', '終於被我等到了 要永遠幸福美麗❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">張瓊文</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"終於被我等到了 要永遠幸福美麗❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('文晨宇', '祝思萱科皜百年好合天天幸福 P.s這段祝福有沒有可以摸彩？')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">文晨宇</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"祝思萱科皜百年好合..."</span></div>
-            <div class="wish-bubble" onclick="showWish('林翠仙', '恭喜科皜娶得美嬌娘')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林翠仙</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜科皜娶得美嬌娘"</span></div>
-            <div class="wish-bubble" onclick="showWish('謝佩吟', '新婚快樂🎊')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">謝佩吟</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"新婚快樂🎊"</span></div>
-            <div class="wish-bubble" onclick="showWish('吳庭宇', '恭喜你們，祝彼得老爺早生貴子🥹')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">吳庭宇</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜你們，祝彼得老爺早生貴子🥹"</span></div>
-            <div class="wish-bubble" onclick="showWish('吳文寶', '恭喜恭喜🎉 百年好合 永結同心')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">吳文寶</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜恭喜🎉 百年好合 永結同心"</span></div>
-            <div class="wish-bubble" onclick="showWish('吳孟真', '祝你們幸福快樂一輩子❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">吳孟真</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"祝你們幸福快樂一輩子❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('Cecilia', '新娘超美！新婚快樂🩷🩷🩷🩷🩷')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">Cecilia</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"新娘超美！新婚快樂🩷🩷🩷🩷🩷"</span></div>
-            <div class="wish-bubble" onclick="showWish('呂鈺浩', '恭喜發財 早生貴子 :D')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">呂鈺浩</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜發財 早生貴子 :D"</span></div>
-            <div class="wish-bubble" onclick="showWish('陳冠儒', '身體健康萬事如意早生貴子白頭偕老愛您')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">陳冠儒</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"身體健康萬事如意早生貴子..."</span></div>
-            <div class="wish-bubble" onclick="showWish('李長峰', '兄弟恭喜啦！期待你們的大囍日子😍')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">李長峰</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"兄弟恭喜啦！期待你們的大囍日子😍"</span></div>
-            <div class="wish-bubble" onclick="showWish('鄧家駿', '恭喜兄弟👍')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">鄧家駿</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜兄弟👍"</span></div>
-            <div class="wish-bubble" onclick="showWish('Ruru Tsai', 'Jeremy love u ❤️❤️❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">Ruru Tsai</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"Jeremy love u ❤️❤️❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('陳欣沅', '祝福萱永遠幸福美滿☺️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">陳欣沅</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"祝福萱永遠幸福美滿☺️"</span></div>
-            <div class="wish-bubble" onclick="showWish('林于脩', '終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EFEBD9; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林于脩</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"終於！家裡最兇的管家婆..."</span></div>
-            <div class="wish-bubble" onclick="showWish('余成毅', '恭喜你們❤️')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #CCB6A4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">余成毅</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"恭喜你們❤️"</span></div>
-            <div class="wish-bubble" onclick="showWish('林余柔', '要一直幸福唷😍')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D9C5B2; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">林余柔</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"要一直幸福唷😍"</span></div>
-            <div class="wish-bubble" onclick="showWish('周冠良', '永遠幸福👊')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8DCC4; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">周冠良</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"永遠幸福👊"</span></div>
-            <div class="wish-bubble" onclick="showWish('黃品智', '希望有空氣投籃')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C7B19F; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">黃品智</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"希望有空氣投籃"</span></div>
-            <div class="wish-bubble" onclick="showWish('陳思齊', '早生貴子👶🏻')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DFD3C3; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">陳思齊</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"早生貴子👶🏻"</span></div>
-            <div class="wish-bubble" onclick="showWish('孫喬新', '幸福久久')"><div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B8A08E; flex-shrink: 0;"></span><span style="font-size: 13px; font-weight: 700; color: rgb(92, 78, 68);">孫喬新</span></div><span style="font-size: 12px; color: #6b7280; font-style: italic; margin-top: 3px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">"幸福久久"</span></div>
-          </div>
+          <div id="chips" class="flex flex-col gap-2.5 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
@@ -136,7 +69,7 @@
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
           <div class="absolute top-[-26px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid rgb(92, 78, 68);"></div>
-          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(480px,100vw);height:min(480px,100vw);"></canvas>
+          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-xl bg-white/95 backdrop-blur-sm" style="width:min(500px,100vw);height:min(500px,100vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-16 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 22px;">
@@ -144,7 +77,7 @@
         </button>
 
         <!-- 中獎顯示區塊 -->
-        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-xl bg-white/95 backdrop-blur-md" style="border: 2px solid rgb(227, 213, 202);">
+        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-md backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
           <p class="text-xs font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
           <p id="result-name" class="font-extrabold text-3xl my-2" style="color: rgb(92, 78, 68);"></p>
           <div class="mt-3 pt-3 border-t border-gray-100">
@@ -177,7 +110,7 @@
       { name: "中中", wish: "恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍" },
       { name: "林思妤", wish: "太感人溜 新娘好美😍 新郎變瘦了" },
       { name: "范睿瑋", wish: "恭喜妳 總算是嫁出去了～" },
-      { name: "李思穎", wish: "親愛的姊姊、姊夫：恭喜你們步入人生的新階段。今天看著你們攜手站在這裡，心中有許多感動與祝福。願你們成為彼此最溫暖的依靠，新婚快樂、百年好合！" },
+      { name: "李思穎", wish: "親愛的姊姊、姊夫：  恭喜你們步入人生的新階段。  今天看著你們攜手站在這裡，心中有許多感動與祝福。雖然我和姊姊平常不是那種會把關心掛在嘴邊的人，但身為妹妹，看見妳找到願意相伴一生的人，真的很替妳開心。  婚姻是一段新的旅程，未來的日子裡或許有歡笑，也會有挑戰，但希望你們能一直記得今天選擇彼此的心意。在開心的時候一起分享喜悅，在困難的時候互相扶持，在平凡的日子裡依然珍惜身邊的彼此。  姊姊，希望妳未來的每一天都能被愛、被理解、被珍惜；姊夫，也謝謝你願意陪伴她走向未來的人生。從今以後，希望你們成為彼此最溫暖的依靠，一起創造屬於你們的幸福。  衷心祝福你們新婚快樂、百年好合，願往後的每一個春夏秋冬，都有彼此相伴；願未來的每一天，都比今天更加幸福美滿。" },
       { name: "韓欣達", wish: "❤️" },
       { name: "李通聖", wish: "愛你們呦😘😘😘" },
       { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
@@ -202,7 +135,7 @@
       { name: "鄧家駿", wish: "恭喜兄弟👍" },
       { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
       { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
-      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈 願你們帶著滿滿祝福和愛，相輔相持一輩子。" },
+      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈  剛出生時的小公主.國中時的叛逆女孩.大學時的獨立社會人.現在的妳即將和科皜攜手一起走向未來的階段，願你們帶著滿滿祝福和愛，相輔相持一輩子。要一直一直一直的幸福呦！^.^" },
       { name: "余成毅", wish: "恭喜你們❤️" },
       { name: "林余柔", wish: "要一直幸福唷😍" },
       { name: "周冠良", wish: "永遠幸福👊" },
@@ -216,16 +149,10 @@
 
     const canvas = document.getElementById('wheel-canvas');
     const ctx = canvas.getContext('2d');
+    const chipsEl = document.getElementById('chips');
     const spinBtn = document.getElementById('spin-btn');
     const resultArea = document.getElementById('result-area');
-
-    function showWish(name, wish) {
-      document.querySelectorAll('.wish-bubble').forEach(b => b.classList.remove('highlight'));
-      event.currentTarget.classList.add('highlight');
-      document.getElementById('result-name').textContent = name;
-      document.getElementById('result-wish').textContent = `「 ${wish} 」`;
-      resultArea.classList.remove('hidden');
-    }
+    const countNum = document.getElementById('count-num');
 
     function drawWheel() {
       const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 10;
@@ -243,4 +170,79 @@
         
         ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
         
-        ctx.save(); ctx.translate(cx
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      countNum.textContent = guestData.length;
+      guestData.forEach((item) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm md:text-base font-medium w-full shadow-2xs';
+        chip.style.background = 'rgb(247, 243, 238)'; 
+        chip.style.color = 'rgb(92, 78, 68)';
+        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-3 text-gray-500 text-right italic">"${item.wish}"</span>`;
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 100;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1.2 + Math.random() * 0.5) + 's';
+        resultArea.appendChild(dot);
+        setTimeout(() => dot.remove(), 1800);
+      }
+    }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+      resultArea.classList.add('hidden');
+
+      const totalDeg = (6 + Math.random()*3)*360 + Math.random()*360;
+      currentRotation += totalDeg;
+      canvas.classList.add('spinning');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        canvas.classList.remove('spinning');
+        spinning = false;
+        spinBtn.style.opacity = '1';
+
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const topAngle = (270 - normalizedRotation + 360) % 360;
+        const segmentAngle = 360 / guestData.length;
+        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
+        
+        const winner = guestData[winIdx];
+        document.getElementById('result-name').textContent = winner.name;
+        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        
+        resultArea.classList.remove('hidden');
+        resultArea.querySelector('#result-name').className = 'font-extrabold text-3xl my-2 result-reveal';
+        spawnConfetti();
+      }, 4100);
+    });
+
+    renderChips();
+    drawWheel();
+  </script>
+</body>
+</html>
