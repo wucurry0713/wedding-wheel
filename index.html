@@ -23,12 +23,12 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 透過 GitHub 倉庫中的照片作為浮水印背景 */
+    /* 內嵌婚紗照霧面浮水印背景（不需要另外上傳圖片檔案） */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('wedding-bg.jpg');
+      background: linear-gradient(rgba(247, 243, 238, 0.85), rgba(247, 243, 238, 0.85)), url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
       background-size: cover;
       background-position: center;
       z-index: 0;
@@ -37,7 +37,7 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
@@ -166,8 +166,7 @@
         ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
-        font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
-        ctx.font = font;
+        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
         ctx.restore();
       });
