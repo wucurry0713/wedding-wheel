@@ -92,26 +92,26 @@
   </main>
 
   <!-- 滿版霸氣中獎顯示彈窗 -->
-  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-sm bg-black/10">
-    <!-- 調整內距與相對定位，方便 Back 按鈕定位在右下方 -->
-    <div id="result-card" class="w-full max-w-6xl rounded-[44px] pt-10 pb-16 px-12 sm:px-20 text-center relative overflow-hidden shadow-2xl border-4" style="border-color: rgb(215, 193, 178);">
+  <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 hidden backdrop-blur-sm bg-black/10">
+    <!-- 放大框框寬度至 max-w-7xl 與放寬內距，能容納極長留言不需捲動 -->
+    <div id="result-card" class="w-full max-w-7xl rounded-[44px] pt-12 pb-16 px-10 sm:px-16 text-center relative overflow-y-auto max-h-[92vh] shadow-2xl border-4" style="border-color: rgb(215, 193, 178);">
       
-      <!-- 1. 標題往上移，避免擋到人臉 -->
-      <div class="mb-2">
-        <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-1" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
+      <!-- 1. 標題維持在上方，不擋人臉 -->
+      <div class="mb-1">
+        <p class="text-lg sm:text-xl font-extrabold tracking-widest uppercase mb-1" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
         <p class="text-sm sm:text-base font-bold tracking-wider" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
       </div>
       
-      <!-- 2. 名字往下移一點（透過 mt-6 空間拉開） -->
-      <p id="result-name" class="font-black text-7xl sm:text-8xl xl:text-9xl mt-6 mb-6 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
+      <!-- 2. 名字位置 -->
+      <p id="result-name" class="font-black text-6xl sm:text-7xl xl:text-8xl mt-4 mb-4 tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
       
-      <!-- 4. 感言不給框，直接文字顯示在背景上 -->
-      <div class="mt-4 max-w-2xl mx-auto">
-        <p class="text-base text-gray-500 mb-1 font-medium">Blessings：</p>
-        <p id="result-wish" class="text-2xl sm:text-3xl italic font-medium max-h-36 overflow-y-auto px-4" style="color: rgb(112, 96, 86);"></p>
+      <!-- 4. 超長感言直接顯示在背景上，無須框框與捲動限制 -->
+      <div class="mt-2 max-w-4xl mx-auto px-4">
+        <p class="text-sm sm:text-base text-gray-500 mb-1 font-medium">Blessings：</p>
+        <p id="result-wish" class="text-xl sm:text-2xl italic font-medium leading-relaxed" style="color: rgb(112, 96, 86);"></p>
       </div>
 
-      <!-- 3. Back 按鈕縮小一半，放置於框框右下方 -->
+      <!-- 3. Back 按鈕固定在右下方 -->
       <div class="absolute bottom-6 right-8 sm:bottom-8 sm:right-12">
         <button id="close-result-btn" class="rounded-full px-8 py-2.5 font-bold shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 16px;">
           Back
@@ -119,179 +119,3 @@
       </div>
 
     </div>
-  </div>
-
-  <script>
-    const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
-    
-    let guestData = [
-      { name: "林家卉", wish: "耶 這天終於來囉💜💜🫶🏻" },
-      { name: "黃鈺雯", wish: "一定要幸福喔😍" },
-      { name: "林嫦花", wish: "真心相愛的兩個人，成為一生的承諾與陪伴。" },
-      { name: "王維", wish: "我愛你們" },
-      { name: "趙瑞華", wish: "恭喜！！！感動哭（期待）" },
-      { name: "郭庭羽", wish: "愛思萱～希望一直幸福下去❤️" },
-      { name: "王怡穎", wish: "永遠幸福美滿  希望當天我不會哭 哈哈" },
-      { name: "詹筑涵", wish: "Congrats~~~ ❤️❤️❤️" },
-      { name: "廖明慧", wish: "地表最佳夫妻" },
-      { name: "黃蓉姿", wish: "期待❤️❤️❤️" },
-      { name: "邱子格", wish: "天使萱要一直很幸福喔❤️" },
-      { name: "陳允碩", wish: "ㄎ 恭喜" },
-      { name: "王柏超", wish: "恭喜科和思萱，終於參加到你們的婚禮了哈哈哈，而且看得出來新郎瘦身有成，超猛！期待那天與你們相見！" },
-      { name: "中中", wish: "恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍" },
-      { name: "林思妤", wish: "太感人溜 新娘好美😍 新郎變瘦了" },
-      { name: "范睿瑋", wish: "恭喜妳 總算是嫁出去了～" },
-      { name: "李思穎", wish: "親愛的姊姊、姊夫：  恭喜你們步入人生的新階段。  今天看著你們攜手站在這裡，心中有許多感動與祝福。雖然我和姊姊平常不是那種會把關心掛在嘴邊的人，但身為妹妹，看見妳找到願意相伴一生的人，真的很替妳開心。  婚姻是一段新的旅程，未來的日子裡或許有歡笑，也會有挑戰，但希望你們能一直記得今天選擇彼此的心意。在開心的時候一起分享喜悅，在困難的時候互相扶持，在平凡的日子裡依然珍惜身邊的彼此。  姊姊，希望妳未來的每一天都能被愛、被理解、被珍惜；姊夫，也謝謝你願意陪伴她走向未來的人生。從今以後，希望你們成為彼此最溫暖的依靠，一起創造屬於你們的幸福。  衷心祝福你們新婚快樂、百年好合，願往後的每一個春夏秋冬，都有彼此相伴；願未來的每一天，都比今天更加幸福美滿。" },
-      { name: "韓欣達", wish: "❤️" },
-      { name: "李通聖", wish: "愛你們呦😘😘😘" },
-      { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
-      { name: "林柔安", wish: "恭喜兩位！😌" },
-      { name: "林汶憲", wish: "生一個生一個" },
-      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
-      { name: "洪米奇", wish: "當媽咪前最後的自由day，就給我們李萱萱啦！" },
-      { name: "林佳翰", wish: "恭喜老爺🥰 賀喜夫人🥰" },
-      { name: "Claire Tseng", wish: "My 萱 愛你😘" },
-      { name: "張瓊文", wish: "終於被我等到了 要永遠幸福美麗❤️" },
-      { name: "文晨宇", wish: "祝思萱科皜百年好合天天幸福 P.s這段祝福有沒有可以摸彩？" },
-      { name: "林翠仙", wish: "恭喜科皜娶得美嬌娘" },
-      { name: "謝佩吟", wish: "新婚快樂🎊" },
-      { name: "吳庭宇", wish: "恭喜你們，祝彼得老爺早生貴子🥹" },
-      { name: "吳文寶", wish: "恭喜恭喜🎉 百年好合 永結同心" },
-      { name: "吳孟真", wish: "祝你們幸福快樂一輩子❤️" },
-      { name: "Cecilia", wish: "新娘超美！新婚快樂🩷🩷🩷🩷🩷" },
-      { name: "呂鈺浩", wish: "恭喜發財 早生貴子 :D" },
-      { name: "陳冠儒", wish: "身體健康萬事如意早生貴子白頭偕老愛您" },
-      { name: "李長峰", wish: "兄弟恭喜啦！期待你們的大囍日子😍" },
-      { name: "鄧家駿", wish: "恭喜兄弟👍" },
-      { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
-      { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
-      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈  剛出生時的小公主.國中時的叛逆女孩.大學時的獨立社會人.現在的妳即將和科皜攜手一起走向未來的階段，願你們帶著滿滿祝福和愛，相輔相持一輩子。要一直一直一直的幸福呦！^.^" },
-      { name: "余成毅", wish: "恭喜你們❤️" },
-      { name: "林余柔", wish: "要一直幸福唷😍" },
-      { name: "周冠良", wish: "永遠幸福👊" },
-      { name: "黃品智", wish: "希望有空氣投籃" },
-      { name: "陳思齊", wish: "早生貴子👶🏻" },
-      { name: "孫喬新", wish: "幸福久久" }
-    ];
-
-    let spinning = false;
-    let currentRotation = 0;
-
-    const canvas = document.getElementById('wheel-canvas');
-    const ctx = canvas.getContext('2d');
-    const chipsEl = document.getElementById('chips');
-    const spinBtn = document.getElementById('spin-btn');
-    const gameContainer = document.getElementById('game-container');
-    const resultArea = document.getElementById('result-area');
-    const resultCard = document.getElementById('result-card');
-    const closeResultBtn = document.getElementById('close-result-btn');
-
-    function drawWheel() {
-      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
-      ctx.clearRect(0,0,w,h);
-      if (!guestData.length) return;
-      const arc = (Math.PI*2)/guestData.length;
-      
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
-      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 8; ctx.stroke();
-      
-      guestData.forEach((item, i) => {
-        const start = i * arc, end = start + arc;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
-        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
-        
-        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
-        
-        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
-        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#5c4e44'; 
-        ctx.font = `700 ${Math.min(26, 420/guestData.length)}px 'DM Sans', sans-serif`;
-        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
-        ctx.restore();
-      });
-    }
-
-    function renderChips() {
-      chipsEl.innerHTML = '';
-      guestData.forEach((item) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip flex items-center justify-between px-4 py-3 rounded-2xl text-base md:text-lg font-medium w-full shadow-xs';
-        chip.style.background = 'rgb(247, 243, 238)'; 
-        chip.style.color = 'rgb(92, 78, 68)';
-        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-4 text-gray-500 text-right italic">"${item.wish}"</span>`;
-        chipsEl.appendChild(chip);
-      });
-    }
-
-    function spawnConfetti() {
-      for (let i = 0; i < 80; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'confetti-dot';
-        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 120 + Math.random() * 200;
-        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
-        dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
-        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
-        dot.style.left = '50%'; dot.style.top = '50%';
-        dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.animationDuration = (1.5 + Math.random() * 0.8) + 's';
-        resultCard.appendChild(dot);
-        setTimeout(() => dot.remove(), 2200);
-      }
-    }
-
-    /* 修正內置函式名稱輔助 */
-    function SinCos(angle) { return Math.sin(angle); }
-
-    spinBtn.addEventListener('click', () => {
-      if (spinning || guestData.length < 2) return;
-      spinning = true;
-      spinBtn.style.opacity = '0.5';
-
-      const totalDeg = (7 + Math.random()*3)*360 + Math.random()*360;
-      currentRotation += totalDeg;
-      canvas.classList.add('spinning');
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      // 旋轉 5.5 秒後揭曉
-      setTimeout(() => {
-        canvas.classList.remove('spinning');
-        spinning = false;
-        spinBtn.style.opacity = '1';
-
-        const normalizedRotation = (currentRotation % 360 + 360) % 360;
-        const topAngle = (270 - normalizedRotation + 360) % 360;
-        const segmentAngle = 360 / guestData.length;
-        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
-        
-        const winner = guestData[winIdx];
-        document.getElementById('result-name').textContent = winner.name;
-        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
-        
-        // 隱藏背景轉盤與名單遊戲區塊，顯示滿版霸氣中獎彈窗
-        gameContainer.style.opacity = '0';
-        setTimeout(() => {
-          gameContainer.classList.add('hidden');
-          resultArea.classList.remove('hidden');
-          resultCard.className = 'w-full max-w-6xl rounded-[44px] pt-10 pb-16 px-12 sm:px-20 text-center relative overflow-hidden shadow-2xl border-4 result-modal-reveal';
-          spawnConfetti();
-        }, 300);
-
-      }, 5600);
-    });
-
-    // 點擊關閉/返回繼續抽獎按鈕
-    closeResultBtn.addEventListener('click', () => {
-      resultArea.classList.add('hidden');
-      gameContainer.classList.remove('hidden');
-      setTimeout(() => {
-        gameContainer.style.opacity = '1';
-      }, 50);
-    });
-
-    renderChips();
-    drawWheel();
-  </script>
-</body>
-</html>
