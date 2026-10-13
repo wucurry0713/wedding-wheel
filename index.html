@@ -27,45 +27,38 @@
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAJQAQMAAABpB0kBAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUeF7twQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAODWAcgIAAG1GgR5AAAAAElFTkSuQmCC');
+      background: linear-gradient(rgba(247, 243, 238, 0.85), rgba(247, 243, 238, 0.85)), url('input_file_8.png');
       background-size: cover;
       background-position: center;
-      opacity: 0.18;
-      filter: blur(5px) brightness(1.1);
       z-index: 0;
       pointer-events: none;
     }
 
-    /* 祝福泡泡飄浮動畫 */
-    @keyframes floatBubble {
-      0% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-8px) rotate(1deg); }
-      100% { transform: translateY(0px) rotate(0deg); }
-    }
+    /* 祝福泡泡質感動畫與樣式 */
     .wish-bubble {
-      animation: floatBubble 4s ease-in-out infinite;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(8px);
     }
     .wish-bubble:hover {
-      transform: scale(1.08) translateY(-4px);
+      transform: scale(1.08) translateY(-2px);
       z-index: 30;
-      box-shadow: 0 10px 25px -5px rgba(92, 78, 68, 0.2);
+      box-shadow: 0 8px 20px -4px rgba(92, 78, 68, 0.2);
     }
     .wish-bubble.highlight {
-      transform: scale(1.12);
+      transform: scale(1.1);
       background: rgb(227, 213, 202) !important;
       border-color: rgb(180, 150, 135) !important;
-      box-shadow: 0 0 20px rgba(199, 177, 159, 0.6);
+      box-shadow: 0 0 15px rgba(199, 177, 159, 0.6);
       z-index: 40;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：標題與 48 個質感祝福泡泡牆 -->
+      <!-- 左側：英文標題與 48 個質感祝福泡泡牆 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
           <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
@@ -73,21 +66,21 @@
         </header>
 
         <!-- 泡泡牆容器 -->
-        <div class="w-full rounded-3xl p-5 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/80" style="border: 1px solid rgb(238, 230, 221); max-height: 520px;">
-          <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100 px-2">
+        <div class="w-full rounded-3xl p-6 shadow-xl text-left flex flex-col bg-white/80 backdrop-blur-md" style="border: 1px solid rgb(238, 230, 221);">
+          <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
             <span class="text-base font-bold" style="color: rgb(92, 78, 68);">🫧 祝福泡泡牆 (<span id="count-num">48</span>)</span>
-            <span class="text-xs text-gray-400">滑鼠懸停或點擊泡泡</span>
+            <span class="text-xs text-gray-500 font-medium">點擊泡泡查看完整祝福</span>
           </div>
-          <!-- 泡泡雲集區 -->
-          <div id="bubbles-container" class="flex flex-wrap gap-2.5 overflow-y-auto p-2 pr-1 max-h-[440px] content-start"></div>
+          <!-- 泡泡雲集區（可滾動） -->
+          <div id="bubbles-container" class="flex flex-wrap gap-2.5 overflow-y-auto max-h-[400px] p-2 pr-1 content-start"></div>
         </div>
       </div>
 
-      <!-- 右側：放大尺寸轉盤與抽獎結果 -->
+      <!-- 右側：大尺寸轉盤與抽獎結果 -->
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
           <div class="absolute top-[-26px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid rgb(92, 78, 68);"></div>
-          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-xl bg-white/95 backdrop-blur-sm" style="width:min(480px,100vw);height:min(480px,100vw);"></canvas>
+          <canvas id="wheel-canvas" width="900" height="900" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(480px,100vw);height:min(480px,100vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-16 py-4 font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 22px;">
@@ -95,7 +88,7 @@
         </button>
 
         <!-- 中獎顯示區塊 -->
-        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-md backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
+        <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-xl bg-white/95 backdrop-blur-md" style="border: 2px solid rgb(227, 213, 202);">
           <p class="text-xs font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
           <p id="result-name" class="font-extrabold text-3xl my-2" style="color: rgb(92, 78, 68);"></p>
           <div class="mt-3 pt-3 border-t border-gray-100">
@@ -153,7 +146,7 @@
       { name: "鄧家駿", wish: "恭喜兄弟👍" },
       { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
       { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
-      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈 願你們帶著滿滿祝福和愛，相輔 H 守一輩子。" },
+      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈 願你們帶著滿滿祝福和愛，相輔相持一輩子。" },
       { name: "余成毅", wish: "恭喜你們❤️" },
       { name: "林余柔", wish: "要一直幸福唷😍" },
       { name: "周冠良", wish: "永遠幸福👊" },
@@ -173,4 +166,70 @@
     const countNum = document.getElementById('count-num');
 
     function drawWheel() {
-      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w
+      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 10;
+      ctx.clearRect(0,0,w,h);
+      if (!guestData.length) return;
+      const arc = (Math.PI*2)/guestData.length;
+      
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
+      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 6; ctx.stroke();
+      
+      guestData.forEach((item, i) => {
+        const start = i * arc, end = start + arc;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderBubbles() {
+      bubblesContainer.innerHTML = '';
+      countNum.textContent = guestData.length;
+      
+      guestData.forEach((item, index) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'wish-bubble inline-flex flex-col px-3.5 py-2 rounded-2xl cursor-pointer shadow-sm';
+        bubble.style.background = 'rgb(255, 255, 255)';
+        bubble.style.border = '1px solid rgb(238, 230, 221)';
+        
+        bubble.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full shrink-0" style="background: ${COLORS[index % COLORS.length]};"></span>
+            <span class="text-xs font-bold" style="color: rgb(92, 78, 68);">${item.name}</span>
+          </div>
+          <span class="text-xs text-gray-500 italic mt-1 max-w-[160px] truncate">"${item.wish}"</span>
+        `;
+
+        bubble.addEventListener('click', () => {
+          document.querySelectorAll('.wish-bubble').forEach(b => b.classList.remove('highlight'));
+          bubble.classList.add('highlight');
+
+          document.getElementById('result-name').textContent = item.name;
+          document.getElementById('result-wish').textContent = `「 ${item.wish} 」`;
+          resultArea.classList.remove('hidden');
+        });
+
+        bubblesContainer.appendChild(bubble);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 100;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.
