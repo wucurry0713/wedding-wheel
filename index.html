@@ -23,32 +23,25 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
     
-    /* 內嵌婚紗照浮水印背景 */
+    /* 透過 GitHub 倉庫中的照片作為浮水印背景 */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='); /* 這裡會由下方實際圖片取代 */
+      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('wedding-bg.jpg');
       background-size: cover;
       background-position: center;
-      opacity: 0.18;
-      filter: blur(5px) brightness(1.1);
       z-index: 0;
       pointer-events: none;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center" style="background: rgb(247, 243, 238);">
-  <style>
-    body::before {
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAJQAQMAAABpB0kBAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUeF7twQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAODWAcgIAAG1GgR5AAAAAElFTkSuQmCC'); /* 完整內嵌婚紗照 */
-    }
-  </style>
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
   <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：標題與留言檢視列表 -->
+      <!-- 左側：放大英文標題與留言檢視列表 -->
       <div class="flex flex-col gap-6 md:col-span-6 text-center md:text-left">
         <header>
           <h1 class="text-5xl md:text-6xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Lucky Draw</h1>
@@ -173,7 +166,8 @@
         ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
-        ctx.font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
+        font = `700 ${Math.min(24, 380/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.font = font;
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 18, 0);
         ctx.restore();
       });
