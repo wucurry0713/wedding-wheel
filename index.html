@@ -117,7 +117,7 @@
       { name: "韓欣達", wish: "❤️" },
       { name: "李通聖", wish: "愛你們呦😘😘😘" },
       { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
-      { name: "林柔安", wish: "恭喜兩位！😌" },
+      { name: "林柔安", wish: "恭喜兩位！我兩小可以幫我訂兒童餐嗎😌" },
       { name: "林汶憲", wish: "生一個生一個" },
       { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
       { name: "洪米奇", wish: "當媽咪前最後的自由day，就給我們李萱萱啦！" },
@@ -201,4 +201,55 @@
         const distance = 80 + Math.random() * 140;
         dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
         dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
-        dot.
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1.4 + Math.random() * 0.6) + 's';
+        resultArea.appendChild(dot);
+        setTimeout(() => dot.remove(), 2000);
+      }
+    }
+
+    /* 修正內置函式名稱輔助 */
+    function SinCos(angle) { return Math.sin(angle); }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+      resultArea.classList.add('hidden');
+
+      const totalDeg = (7 + Math.random()*3)*360 + Math.random()*360;
+      currentRotation += totalDeg;
+      canvas.classList.add('spinning');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      // 旋轉時間 5.5 秒 (5600ms)
+      setTimeout(() => {
+        canvas.classList.remove('spinning');
+        spinning = false;
+        spinBtn.style.opacity = '1';
+
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const topAngle = (270 - normalizedRotation + 360) % 360;
+        const segmentAngle = 360 / guestData.length;
+        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
+        
+        const winner = guestData[winIdx];
+        const nameEl = document.getElementById('result-name');
+        nameEl.textContent = winner.name;
+        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        
+        resultArea.classList.remove('hidden');
+        
+        // 重新觸發得獎名單特效動畫
+        nameEl.className = 'font-black text-5xl sm:text-6xl my-4 result-reveal';
+        spawnConfetti();
+      }, 5600);
+    });
+
+    renderChips();
+    drawWheel();
+  </script>
+</body>
+</html>
