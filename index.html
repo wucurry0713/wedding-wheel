@@ -1,4 +1,254 @@
-<!doctype html>
+<!doctype html><!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prize Wheel</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    .chip { animation: chipIn 0.2s ease-out; }
+    @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes resultReveal { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes confettiBurst {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+    }
+    .result-reveal { animation: resultReveal 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    .confetti-dot {
+      position: absolute; width: 10px; height: 10px; border-radius: 50%;
+      animation: confettiBurst 1.2s ease-out forwards;
+    }
+    #wheel-canvas { transition: transform 0s; }
+    #wheel-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+    
+    /* 讀取同資料夾下的 SMV00141.jpg 做為霧面浮水印背景，並保持完美比例 */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(rgba(247, 243, 238, 0.88), rgba(247, 243, 238, 0.88)), url('SMV00141.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+</head>
+<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
+  <!-- 擴大滿版容器限制，大幅提升大螢幕上的滿版震撼感 -->
+  <main class="relative z-10 w-full max-w-[1500px] mx-auto px-4 sm:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      
+      <!-- 左側：標題與祝福清單 (佔 5 欄) -->
+      <div class="flex flex-col gap-6 lg:col-span-5 text-center lg:text-left">
+        <header>
+          <h1 class="text-5xl sm:text-6xl xl:text-7xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Prize Wheel</h1>
+          <p class="mt-3 text-xl sm:text-2xl font-semibold" style="color: rgb(112, 96, 86);">A special blessing for our wedding day!</p>
+        </header>
+
+        <!-- 側邊留言清單 (移除數量及滾動提示) -->
+        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 560px;">
+          <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+            <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表</span>
+          </div>
+          <div id="chips" class="flex flex-col gap-3 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <!-- 右側：大尺寸轉盤與抽獎結果 (佔 7 欄，轉盤明顯放大) -->
+      <div class="flex flex-col items-center gap-8 lg:col-span-7">
+        <div class="relative">
+          <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
+          <!-- 轉盤實體與顯示尺寸放大 -->
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(560px, 92vw); height:min(560px, 92vw);"></canvas>
+        </div>
+        
+        <button id="spin-btn" class="rounded-full px-20 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 26px;">
+          開始抽獎！
+        </button>
+
+        <!-- 中獎顯示區塊 -->
+        <div id="result-area" class="w-full max-w-[560px] rounded-3xl p-7 text-center hidden relative overflow-hidden shadow-lg backdrop-blur-md bg-white/95" style="border: 2px solid rgb(227, 213, 202);">
+          <p class="text-sm font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
+          <p id="result-name" class="font-extrabold text-4xl my-3" style="color: rgb(92, 78, 68);"></p>
+          <div class="mt-4 pt-3 border-t border-gray-100">
+            <p class="text-sm text-gray-400 mb-1">賓客留下的小語：</p>
+            <p id="result-wish" class="text-base italic px-5 py-3 rounded-2xl font-medium max-h-36 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
+    
+    let rawGuestData = [
+      { name: "林家卉", wish: "耶 這天終於來囉💜💜🫶🏻" },
+      { name: "黃鈺雯", wish: "一定要幸福喔😍" },
+      { name: "林嫦花", wish: "真心相愛的兩個人，成為一生的承諾與陪伴。" },
+      { name: "王維", wish: "我愛你們" },
+      { name: "趙瑞華", wish: "恭喜！！！感動哭（期待）" },
+      { name: "郭庭羽", wish: "愛思萱～希望一直幸福下去❤️" },
+      { name: "王怡穎", wish: "永遠幸福美滿  希望當天我不會哭 哈哈" },
+      { name: "詹筑涵", wish: "Congrats~~~ ❤️❤️❤️" },
+      { name: "廖明慧", wish: "地表最佳夫妻" },
+      { name: "黃蓉姿", wish: "期待❤️❤️❤️" },
+      { name: "邱子格", wish: "天使萱要一直很幸福喔❤️" },
+      { name: "陳允碩", wish: "ㄎ 恭喜" },
+      { name: "王柏超", wish: "恭喜科和思萱，終於參加到你們的婚禮了哈哈哈，而且看得出來新郎瘦身有成，超猛！期待那天與你們相見！" },
+      { name: "中中", wish: "恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍" },
+      { name: "林思妤", wish: "太感人溜 新娘好美😍 新郎變瘦了" },
+      { name: "范睿瑋", wish: "恭喜妳 總算是嫁出去了～" },
+      { name: "李思穎", wish: "親愛的姊姊、姊夫：  恭喜你們步入人生的新階段。  今天看著你們攜手站在這裡，心中有許多感動與祝福。雖然我和姊姊平常不是那種會把關心掛在嘴邊的人，但身為妹妹，看見妳找到願意相伴一生的人，真的很替妳開心。  婚姻是一段新的旅程，未來的日子裡或許有歡笑，也會有挑戰，但希望你們能一直記得今天選擇彼此的心意。在開心的時候一起分享喜悅，在困難的時候互相扶持，在平凡的日子裡依然珍惜身邊的彼此。  姊姊，希望妳未來的每一天都能被愛、被理解、被珍惜；姊夫，也謝謝你願意陪伴她走向未來的人生。從今以後，希望你們成為彼此最溫暖的依靠，一起創造屬於你們的幸福。  衷心祝福你們新婚快樂、百年好合，願往後的每一個春夏秋冬，都有彼此相伴；願未來的每一天，都比今天更加幸福美滿。" },
+      { name: "韓欣達", wish: "❤️" },
+      { name: "李通聖", wish: "愛你們呦😘😘😘" },
+      { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
+      { name: "林柔安", wish: "恭喜兩位！我兩小可以幫我訂兒童餐嗎😌" },
+      { name: "林汶憲", wish: "生一個生一個" },
+      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
+      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
+      { name: "洪米奇", wish: "當媽咪前最後的自由day，就給我們李萱萱啦！" },
+      { name: "林佳翰", wish: "恭喜老爺🥰 賀喜夫人🥰" },
+      { name: "Claire Tseng", wish: "My 萱 愛你😘" },
+      { name: "張瓊文", wish: "終於被我等到了 要永遠幸福美麗❤️" },
+      { name: "文晨宇", wish: "祝思萱科皜百年好合天天幸福 P.s這段祝福有沒有可以摸彩？" },
+      { name: "林翠仙", wish: "恭喜科皜娶得美嬌娘" },
+      { name: "謝佩吟", wish: "新婚快樂🎊" },
+      { name: "吳庭宇", wish: "恭喜你們，祝彼得老爺早生貴子🥹" },
+      { name: "吳文寶", wish: "恭喜恭喜🎉 百年好合 永結同心" },
+      { name: "吳孟真", wish: "祝你們幸福快樂一輩子❤️" },
+      { name: "Cecilia", wish: "新娘超美！新婚快樂🩷🩷🩷🩷🩷" },
+      { name: "呂鈺浩", wish: "恭喜發財 早生貴子 :D" },
+      { name: "陳冠儒", wish: "身體健康萬事如意早生貴子白頭偕老愛您" },
+      { name: "李長峰", wish: "兄弟恭喜啦！期待你們的大囍日子😍" },
+      { name: "鄧家駿", wish: "恭喜兄弟👍" },
+      { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
+      { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
+      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈  剛出生時的小公主.國中時的叛逆女孩.大學時的獨立社會人.現在的妳即將和科皜攜手一起走向未來的階段，願你們帶著滿滿祝福和愛，相輔相持一輩子。要一直一直一直的幸福呦！^.^" },
+      { name: "余成毅", wish: "恭喜你們❤️" },
+      { name: "林余柔", wish: "要一直幸福唷😍" },
+      { name: "周冠良", wish: "永遠幸福👊" },
+      { name: "黃品智", wish: "希望有空氣投籃" },
+      { name: "陳思齊", wish: "早生貴子👶🏻" },
+      { name: "孫喬新", wish: "幸福久久" }
+    ];
+
+    // 過濾掉重複出現的人名
+    const seenNames = new Set();
+    let guestData = rawGuestData.filter(item => {
+      if (seenNames.has(item.name)) return false;
+      seenNames.add(item.name);
+      return true;
+    });
+
+    let spinning = false;
+    let currentRotation = 0;
+
+    const canvas = document.getElementById('wheel-canvas');
+    const ctx = canvas.getContext('2d');
+    const chipsEl = document.getElementById('chips');
+    const spinBtn = document.getElementById('spin-btn');
+    const resultArea = document.getElementById('result-area');
+
+    function drawWheel() {
+      const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
+      ctx.clearRect(0,0,w,h);
+      if (!guestData.length) return;
+      const arc = (Math.PI*2)/guestData.length;
+      
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
+      ctx.strokeStyle = 'rgb(227, 213, 202)'; ctx.lineWidth = 8; ctx.stroke();
+      
+      guestData.forEach((item, i) => {
+        const start = i * arc, end = start + arc;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5c4e44'; 
+        ctx.font = `700 ${Math.min(26, 420/guestData.length)}px 'DM Sans', sans-serif`;
+        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      guestData.forEach((item) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip flex items-center justify-between px-4 py-3 rounded-2xl text-base md:text-lg font-medium w-full shadow-xs';
+        chip.style.background = 'rgb(247, 243, 238)'; 
+        chip.style.color = 'rgb(92, 78, 68)';
+        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-4 text-gray-500 text-right italic">"${item.wish}"</span>`;
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    function spawnConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = COLORS[Math.floor(Math.random()*COLORS.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 100;
+        dot.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        dot.style.setProperty('--ty', SinCos(angle) * distance + 'px');
+        dot.style.setProperty('--rot', Math.random() * 720 + 'deg');
+        dot.style.left = '50%'; dot.style.top = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.animationDuration = (1.2 + Math.random() * 0.5) + 's';
+        resultArea.appendChild(dot);
+        setTimeout(() => dot.remove(), 1800);
+      }
+    }
+
+    function SinCos(angle) { return Math.sin(angle); }
+
+    spinBtn.addEventListener('click', () => {
+      if (spinning || guestData.length < 2) return;
+      spinning = true;
+      spinBtn.style.opacity = '0.5';
+      resultArea.classList.add('hidden');
+
+      const totalDeg = (6 + Math.random()*3)*360 + Math.random()*360;
+      currentRotation += totalDeg;
+      canvas.classList.add('spinning');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        canvas.classList.remove('spinning');
+        spinning = false;
+        spinBtn.style.opacity = '1';
+
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const topAngle = (270 - normalizedRotation + 360) % 360;
+        const segmentAngle = 360 / guestData.length;
+        const winIdx = Math.floor(topAngle / segmentAngle) % guestData.length;
+        
+        const winner = guestData[winIdx];
+        document.getElementById('result-name').textContent = winner.name;
+        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        
+        resultArea.classList.remove('hidden');
+        resultArea.querySelector('#result-name').className = 'font-extrabold text-4xl my-3 result-reveal';
+        spawnConfetti();
+      }, 4100);
+    });
+
+    renderChips();
+    drawWheel();
+  </script>
+</body>
+</html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
