@@ -29,7 +29,7 @@
   <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
       
-      <!-- 左側：標題與留言檢視列表 (佔 6 格) -->
+      <!-- 左側：標題與留言檢視列表 -->
       <div class="flex flex-col gap-5 md:col-span-6 text-center md:text-left">
         <header>
           <span class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase shadow-sm" style="background: rgb(227, 213, 202); color: rgb(92, 78, 68);">Wedding Lucky Draw</span>
@@ -37,17 +37,17 @@
           <p class="mt-2 text-base md:text-lg" style="color: rgb(138, 122, 110); font-weight: 400;">從表單留言名單中抽出一位幸運賓客！</p>
         </header>
 
-        <!-- 側邊留言清單 (供抽獎前檢視) -->
+        <!-- 側邊留言清單 -->
         <div class="w-full rounded-2xl p-5 shadow-sm text-left flex flex-col" style="background: rgb(255, 255, 255); border: 1px solid rgb(238, 230, 221); max-height: 420px;">
           <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100">
-            <span class="text-sm font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">0</span>)</span>
+            <span class="text-sm font-bold" style="color: rgb(92, 78, 68);">📋 留下的祝福列表 (<span id="count-num">48</span>)</span>
             <span class="text-xs text-gray-400">可上下滾動檢視</span>
           </div>
           <div id="chips" class="flex flex-col gap-2 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
-      <!-- 右側：大尺寸轉盤與抽獎結果 (佔 6 格) -->
+      <!-- 右側：大尺寸轉盤與抽獎結果 -->
       <div class="flex flex-col items-center gap-6 md:col-span-6">
         <div class="relative">
           <div class="absolute top-[-22px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:12px solid transparent;border-right:12px solid transparent;border-top:20px solid rgb(92, 78, 68);"></div>
@@ -58,13 +58,13 @@
           開始抽獎！
         </button>
 
-        <!-- 中獎顯示區塊 (抽獎後顯示姓名與祝福) -->
+        <!-- 中獎顯示區塊 -->
         <div id="result-area" class="w-full rounded-2xl p-6 text-center hidden relative overflow-hidden shadow-md" style="background: rgb(255, 255, 255); border: 2px solid rgb(227, 213, 202);">
           <p class="text-xs font-bold tracking-widest uppercase mb-1" style="color: rgb(180, 150, 135);">🎉 恭喜中獎得主 🎉</p>
           <p id="result-name" class="font-extrabold text-3xl my-2" style="color: rgb(92, 78, 68);"></p>
           <div class="mt-3 pt-3 border-t border-gray-100">
             <p class="text-xs text-gray-400 mb-1">賓客留下的小語：</p>
-            <p id="result-wish" class="text-sm italic px-4 py-2.5 rounded-xl font-medium" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
+            <p id="result-wish" class="text-sm italic px-4 py-2.5 rounded-xl font-medium max-h-32 overflow-y-auto" style="background: rgb(247, 243, 238); color: rgb(112, 96, 86);"></p>
           </div>
         </div>
       </div>
@@ -75,19 +75,56 @@
   <script>
     const COLORS = ['#D9C5B2', '#E8DCC4', '#C7B19F', '#DFD3C3', '#B8A08E', '#EFEBD9', '#CCB6A4'];
     
-    // 正式對應你的表單回覆真實名單與祝福留言
+    // 正式 48 筆真實賓客名單（已排除測試資料）
     let guestData = [
-      { name: "吳臭寶", wish: "馬麻～～" },
-      { name: "臭熊", wish: "馬麻：）" },
-      { name: "臭寶", wish: "無法參加，但我想留下給你們的祝福" },
-      { name: "黃偉滔", wish: "祝新人新婚愉快，幸福美滿！" },
-      { name: "林家卉", wish: "耶 這天終於來囉🥳🥳🥰" },
-      { name: "黃鈺雯", wish: "一定要幸福喔😻" },
-      { name: "吳定曄", wish: "祝百年好合，早生貴子！" },
+      { name: "林家卉", wish: "耶 這天終於來囉💜💜🫶🏻" },
+      { name: "黃鈺雯", wish: "一定要幸福喔😍" },
       { name: "林嫦花", wish: "真心相愛的兩個人，成為一生的承諾與陪伴。" },
       { name: "王維", wish: "我愛你們" },
       { name: "趙瑞華", wish: "恭喜！！！感動哭（期待）" },
-      { name: "郭庭羽", wish: "愛思萱" }
+      { name: "郭庭羽", wish: "愛思萱～希望一直幸福下去❤️" },
+      { name: "王怡穎", wish: "永遠幸福美滿  希望當天我不會哭 哈哈" },
+      { name: "詹筑涵", wish: "Congrats~~~ ❤️❤️❤️" },
+      { name: "廖明慧", wish: "地表最佳夫妻" },
+      { name: "黃蓉姿", wish: "期待❤️❤️❤️" },
+      { name: "邱子格", wish: "天使萱要一直很幸福喔❤️" },
+      { name: "陳允碩", wish: "ㄎ 恭喜" },
+      { name: "王柏超", wish: "恭喜科和思萱，終於參加到你們的婚禮了哈哈哈，而且看得出來新郎瘦身有成，超猛！期待那天與你們相見！" },
+      { name: "中中", wish: "恭喜思萱&科皜 走進人生的新階段，幸福一輩子🤍" },
+      { name: "林思妤", wish: "太感人溜 新娘好美😍 新郎變瘦了" },
+      { name: "范睿瑋", wish: "恭喜妳 總算是嫁出去了～" },
+      { name: "李思穎", wish: "親愛的姊姊、姊夫：  恭喜你們步入人生的新階段。  今天看著你們攜手站在這裡，心中有許多感動與祝福。雖然我和姊姊平常不是那種會把關心掛在嘴邊的人，但身為妹妹，看見妳找到願意相伴一生的人，真的很替妳開心。  婚姻是一段新的旅程，未來的日子裡或許有歡笑，也會有挑戰，但希望你們能一直記得今天選擇彼此的心意。在開心的時候一起分享喜悅，在困難的時候互相扶持，在平凡的日子裡依然珍惜身邊的彼此。  姊姊，希望妳未來的每一天都能被愛、被理解、被珍惜；姊夫，也謝謝你願意陪伴她走向未來的人生。從今以後，希望你們成為彼此最溫暖的依靠，一起創造屬於你們的幸福。  衷心祝福你們新婚快樂、百年好合，願往後的每一個春夏秋冬，都有彼此相伴；願未來的每一天，都比今天更加幸福美滿。" },
+      { name: "韓欣達", wish: "❤️" },
+      { name: "李通聖", wish: "愛你們呦😘😘😘" },
+      { name: "陳兆霖", wish: "恭喜你們，祝永浴愛河！" },
+      { name: "林柔安", wish: "恭喜兩位！我兩小可以幫我訂兒童餐嗎😌" },
+      { name: "林汶憲", wish: "生一個生一個" },
+      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
+      { name: "邱欣儀", wish: "新婚愉快！期待婚禮當天看到美美的新娘🥰👰🏻‍♀️" },
+      { name: "洪米奇", wish: "當媽咪前最後的自由day，就給我們李萱萱啦！" },
+      { name: "林佳翰", wish: "恭喜老爺🥰 賀喜夫人🥰" },
+      { name: "Claire Tseng", wish: "My 萱 愛你😘" },
+      { name: "張瓊文", wish: "終於被我等到了 要永遠幸福美麗❤️" },
+      { name: "文晨宇", wish: "祝思萱科皜百年好合天天幸福 P.s這段祝福有沒有可以摸彩？" },
+      { name: "林翠仙", wish: "恭喜科皜娶得美嬌娘" },
+      { name: "謝佩吟", wish: "新婚快樂🎊" },
+      { name: "吳庭宇", wish: "恭喜你們，祝彼得老爺早生貴子🥹" },
+      { name: "吳文寶", wish: "恭喜恭喜🎉 百年好合 永結同心" },
+      { name: "吳孟真", wish: "祝你們幸福快樂一輩子❤️" },
+      { name: "Cecilia", wish: "新娘超美！新婚快樂🩷🩷🩷🩷🩷" },
+      { name: "呂鈺浩", wish: "恭喜發財 早生貴子 :D" },
+      { name: "陳冠儒", wish: "身體健康萬事如意早生貴子白頭偕老愛您" },
+      { name: "李長峰", wish: "兄弟恭喜啦！期待你們的大囍日子😍" },
+      { name: "鄧家駿", wish: "恭喜兄弟👍" },
+      { name: "Ruru Tsai", wish: "Jeremy love u ❤️❤️❤️" },
+      { name: "陳欣沅", wish: "祝福萱永遠幸福美滿☺️" },
+      { name: "林于脩", wish: "終於！家裡最兇的管家婆有人接手了。哈哈哈哈哈哈  剛出生時的小公主.國中時的叛逆女孩.大學時的獨立社會人.現在的妳即將和科皜攜手一起走向未來的階段，願你們帶著滿滿祝福和愛，相輔相持一輩子。要一直一直一直的幸福呦！^.^" },
+      { name: "余成毅", wish: "恭喜你們❤️" },
+      { name: "林余柔", wish: "要一直幸福唷😍" },
+      { name: "周冠良", wish: "永遠幸福👊" },
+      { name: "黃品智", wish: "希望有空氣投籃" },
+      { name: "陳思齊", wish: "早生貴子👶🏻" },
+      { name: "孫喬新", wish: "幸福久久" }
     ];
 
     let spinning = false;
