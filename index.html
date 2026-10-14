@@ -185,32 +185,32 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+      osc.type = 'sawtooth'; // 使用鋸齒波，聲音更有厚度
+      osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.04);
+      osc.stop(audioCtx.currentTime + 0.05);
     }
 
     function playWinSound() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const notes = [523.25, 659.25, 783.99, 1046.50];
+      const notes = [392.00, 523.25, 659.25, 783.99, 1046.50]; // G4, C5, E5, G5, C6
       notes.forEach((freq, idx) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
+        osc.type = 'triangle';
         osc.frequency.value = freq;
-        const startTime = audioCtx.currentTime + idx * 0.12;
-        gain.gain.setValueAtTime(0.3, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
+        const startTime = audioCtx.currentTime + idx * 0.1;
+        gain.gain.setValueAtTime(0.35, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(startTime);
-        osc.stop(startTime + 0.5);
+        osc.stop(startTime + 0.6);
       });
     }
 
