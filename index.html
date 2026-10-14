@@ -27,7 +27,7 @@
       animation: confettiBurst 1.8s ease-out forwards;
     }
     
-    /* 轉盤旋轉時間 5.5 秒 */
+    /* 轉盤旋轉時間 9.5 秒 */
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 9.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
@@ -178,8 +178,45 @@
       { name: "孫喬新", wish: "幸福久久" }
     ];
 
+    /* === 內建 Web Audio 音效引擎 === */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTickSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.04);
+    }
+
+    function playWinSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const startTime = audioCtx.currentTime + idx * 0.12;
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.5);
+      });
+    }
+
     let spinning = false;
     let currentRotation = 0;
+    let audioAnimId = null;
 
     const canvas = document.getElementById('wheel-canvas');
     const ctx = canvas.getContext('2d');
@@ -245,8 +282,33 @@
       }
     }
 
-    /* 修正內置函式名稱輔助 */
     function SinCos(angle) { return Math.sin(angle); }
+
+    // 與 9.5 秒旋轉完美同步的音效節奏追蹤器
+    function trackWheelAudio(targetDeg) {
+      const startTime = performance.now();
+      const duration = 9500; // 對應 9.5 秒
+      const segmentDeg = 360 / guestData.length;
+      let lastSegmentIndex = -1;
+
+      function update() {
+        const now = performance.now();
+        const elapsed = now - startTime;
+        if (elapsed < duration) {
+          const progress = elapsed / duration;
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const currentDeg = currentRotation - (targetDeg * (1 - easeOut));
+          
+          const currentSegmentIndex = Math.floor(currentDeg / segmentDeg);
+          if (currentSegmentIndex !== lastSegmentIndex) {
+            playTickSound();
+            lastSegmentIndex = currentSegmentIndex;
+          }
+          audioAnimId = requestAnimationFrame(update);
+        }
+      }
+      audioAnimId = requestAnimationFrame(update);
+    }
 
     spinBtn.addEventListener('click', () => {
       if (spinning || guestData.length < 2) return;
@@ -258,11 +320,15 @@
       canvas.classList.add('spinning');
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-      // 旋轉 5.5 秒後揭曉
+      // 啟動轉盤音效
+      trackWheelAudio(totalDeg);
+
+      // 配合你原本設定的 9.8 秒揭曉時間
       setTimeout(() => {
         canvas.classList.remove('spinning');
         spinning = false;
         spinBtn.style.opacity = '1';
+        if (audioAnimId) cancelAnimationFrame(audioAnimId);
 
         const normalizedRotation = (currentRotation % 360 + 360) % 360;
         const topAngle = (270 - normalizedRotation + 360) % 360;
@@ -271,14 +337,14 @@
         
         const winner = guestData[winIdx];
         document.getElementById('result-name').textContent = winner.name;
-        document.getElementById('result-wish').textContent = `「 ${winner.wish} 」`;
+        document.getElementById('result-wish').textContent = `` + winner.wish + ``;
         
-        // 隱藏背景轉盤與名單遊戲區塊，顯示滿版霸氣中獎彈窗
         gameContainer.style.opacity = '0';
         setTimeout(() => {
           gameContainer.classList.add('hidden');
           resultArea.classList.remove('hidden');
-          resultCard.className = 'w-full max-w-7xl rounded-[44px] pt-8 pb-14 px-14 sm:px-24 text-center relative overflow-hidden shadow-2xl border-4 flex flex-col justify-between min-h-[520px] result-modal-reveal';
+          resultCard.className = 'rounded-[44px] pt-10 pb-16 px-16 sm:px-28 text-center relative overflow-hidden shadow-2xl border-4 flex flex-col justify-between min-h-[680px] result-modal-reveal';
+          playWinSound(); // 播放中獎歡慶音效
           spawnConfetti();
         }, 300);
 
