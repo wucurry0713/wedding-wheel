@@ -56,7 +56,7 @@
 <body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
   
   <!-- 主遊戲畫面容器 (抽獎時顯示，得獎時隱藏) -->
-  <main id="game-container" class="relative z-10 w-full max-w-[1500px] mx-auto px-4 sm:px-8 py-8 transition-opacity duration-500">
+  <main id="game-container" class="relative z-10 w-full max-w-[92vw] mx-auto px-4 sm:px-8 py-8 transition-opacity duration-500">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
       
       <!-- 左側：標題與祝福清單 (佔 5 欄) -->
@@ -67,7 +67,7 @@
         </header>
 
         <!-- 側邊留言清單 -->
-        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 580px;">
+        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 800px;">
           <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
             <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">💌 Love & Blessings</span>
           </div>
@@ -80,7 +80,7 @@
         <div class="relative">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(600px, 92vw); height:min(600px, 92vw);"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(850px, 92vw); height:min(850px, 92vw);"></canvas>
         </div>
         
         <button id="spin-btn" class="rounded-full px-24 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 28px;">
@@ -246,7 +246,10 @@
         ctx.save(); ctx.translate(cx,cy); ctx.rotate(start + arc/2);
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
-        ctx.font = `700 ${Math.min(34, 550/guestData.length)}px 'DM Sans', sans-serif`;
+        
+        // ★ 這裡調整了計算公式：Math.min(45, 800/guestData.length)，確保字放大但絕不超出邊界
+        ctx.font = `700 ${Math.min(45, 800/guestData.length)}px 'DM Sans', sans-serif`;
+        
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
         ctx.restore();
       });
