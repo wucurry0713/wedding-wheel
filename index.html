@@ -8,8 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'DM Sans', sans-serif; }
-    .chip { animation: chipIn 0.2s ease-out; }
-    @keyframes chipIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
     /* 滿版震撼中獎彈窗出現動畫 */
     @keyframes resultRevealModal { 
@@ -50,40 +48,77 @@
       background-size: cover;
       background-position: center;
     }
+
+    /* === 底部質感跑馬燈設計 === */
+    .marquee-wrapper {
+      position: fixed;
+      bottom: 0; left: 0; width: 100vw;
+      background: rgba(247, 243, 238, 0.85); /* 呼應婚禮主題色，霧面透光 */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(215, 193, 178, 0.6);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+      padding: 18px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      z-index: 20;
+    }
+    .marquee-content {
+      display: inline-block;
+      animation: marquee-scroll 160s linear infinite; /* 設定一個優雅緩慢的速度 */
+    }
+    .marquee-content:hover {
+      animation-play-state: paused; /* 滑鼠移過去會暫停，方便閱讀 */
+    }
+    @keyframes marquee-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); } /* 因為內容複製了兩份，移動50%剛好無縫接軌 */
+    }
+    .marquee-item {
+      display: inline-block;
+      margin-right: 5rem;
+      font-size: 1.35rem;
+      letter-spacing: 0.05em;
+    }
+    .marquee-name {
+      font-weight: 800;
+      color: rgb(92, 78, 68);
+      margin-right: 0.75rem;
+    }
+    .marquee-wish {
+      font-weight: 600;
+      color: rgb(122, 106, 96);
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="w-full min-h-screen relative overflow-x-hidden flex items-center justify-center">
+<body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[80px]">
   
-  <!-- 主遊戲畫面容器 (抽獎時顯示，得獎時隱藏) -->
-  <main id="game-container" class="relative z-10 w-full max-w-[92vw] mx-auto px-4 sm:px-8 py-8 transition-opacity duration-500">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+  <!-- 主遊戲畫面容器 (移除左側清單框，改為純淨的左右排版) -->
+  <main id="game-container" class="relative z-10 w-full max-w-[92vw] mx-auto px-4 sm:px-8 transition-opacity duration-500">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[70vh]">
       
-      <!-- 左側：標題與祝福清單 (佔 5 欄) -->
-      <div class="flex flex-col gap-6 lg:col-span-5 text-center lg:text-left">
+      <!-- 左側：標題 (置中對齊，畫面更乾淨) -->
+      <div class="flex flex-col gap-6 lg:col-span-5 text-center lg:text-left justify-center">
         <header>
-          <h1 class="text-5xl sm:text-6xl xl:text-7xl tracking-wider uppercase drop-shadow-sm" style="color: rgb(92, 78, 68); font-weight: 800;">Wedding Prize Wheel</h1>
-          <p class="mt-3 text-xl sm:text-2xl font-semibold" style="color: rgb(112, 96, 86);">A special blessing for our wedding day!</p>
+          <h1 class="text-5xl sm:text-7xl xl:text-8xl tracking-wider uppercase drop-shadow-sm leading-tight" style="color: rgb(92, 78, 68); font-weight: 800;">
+            Wedding<br>Prize Wheel
+          </h1>
+          <p class="mt-6 text-2xl sm:text-3xl font-semibold tracking-wide" style="color: rgb(112, 96, 86);">
+            A special blessing for our wedding day!
+          </p>
         </header>
-
-        <!-- 側邊留言清單 -->
-        <div class="w-full rounded-3xl p-6 sm:p-7 shadow-lg text-left flex flex-col backdrop-blur-md bg-white/90" style="border: 1px solid rgb(238, 230, 221); max-height: 800px;">
-          <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-            <span class="text-lg font-bold" style="color: rgb(92, 78, 68);">💌 Love & Blessings</span>
-          </div>
-          <div id="chips" class="flex flex-col gap-3 overflow-y-auto pr-1"></div>
-        </div>
       </div>
 
-      <!-- 右側：大尺寸轉盤與 GO 按鈕 (佔 7 欄) -->
-      <div class="flex flex-col items-center gap-8 lg:col-span-7 lg:pl-4" style="transform: translateX(120px);">
-        <div class="relative">
+      <!-- 右側：大尺寸轉盤與 GO 按鈕 (移除位移，自然置中) -->
+      <div class="flex flex-col items-center justify-center gap-10 lg:col-span-7">
+        <div class="relative mt-4">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
           <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(850px, 92vw); height:min(850px, 92vw);"></canvas>
         </div>
         
-        <button id="spin-btn" class="rounded-full px-24 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 28px;">
+        <button id="spin-btn" class="rounded-full px-28 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 30px;">
           GO
         </button>
       </div>
@@ -91,9 +126,13 @@
     </div>
   </main>
 
+  <!-- 底部滿版跑馬燈 -->
+  <div class="marquee-wrapper">
+    <div id="marquee-content" class="marquee-content"></div>
+  </div>
+
   <!-- 滿版霸氣中獎顯示彈窗 -->
   <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-sm bg-black/10">
-    <!-- 放大框框寬度，並調整內距與上下排版，讓名字避開人臉 -->
     <div id="result-card" class="rounded-[44px] pt-10 pb-16 px-16 sm:px-28 text-center relative overflow-hidden shadow-2xl border-4 flex flex-col justify-between" style="border-color: rgb(215, 193, 178); width: 92vw; max-width: 1500px; min-height: 680px;">
       
       <!-- 1. 上方：標題與中獎得主 (固定在頂部，不擋人臉) -->
@@ -221,12 +260,12 @@
 
     const canvas = document.getElementById('wheel-canvas');
     const ctx = canvas.getContext('2d');
-    const chipsEl = document.getElementById('chips');
     const spinBtn = document.getElementById('spin-btn');
     const gameContainer = document.getElementById('game-container');
     const resultArea = document.getElementById('result-area');
     const resultCard = document.getElementById('result-card');
     const closeResultBtn = document.getElementById('close-result-btn');
+    const marqueeContent = document.getElementById('marquee-content');
 
     function drawWheel() {
       const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = w/2 - 12;
@@ -248,24 +287,20 @@
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
         
-        // ★ 這裡調整了計算公式：Math.min(45, 800/guestData.length)，確保字放大但絕不超出邊界
         ctx.font = `700 ${Math.min(45, 800/guestData.length)}px 'DM Sans', sans-serif`;
-        
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 20, 0);
         ctx.restore();
       });
     }
 
-    function renderChips() {
-      chipsEl.innerHTML = '';
+    /* 產生底部跑馬燈字串，並複製一份以達到無縫無限迴圈的效果 */
+    function renderMarquee() {
+      let htmlString = '';
       guestData.forEach((item) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip flex items-center justify-between px-4 py-3 rounded-2xl text-base md:text-lg font-medium w-full shadow-xs';
-        chip.style.background = 'rgb(247, 243, 238)'; 
-        chip.style.color = 'rgb(92, 78, 68)';
-        chip.innerHTML = `<span class="font-bold shrink-0">${item.name}</span> <span class="truncate ml-4 text-gray-500 text-right italic">"${item.wish}"</span>`;
-        chipsEl.appendChild(chip);
+        htmlString += `<span class="marquee-item"><span class="marquee-name">💌 ${item.name}</span><span class="marquee-wish">"${item.wish}"</span></span>`;
       });
+      // 串接兩份完整的內容，讓卷軸可以完美無縫連接
+      marqueeContent.innerHTML = htmlString + htmlString;
     }
 
     function spawnConfetti() {
@@ -364,7 +399,7 @@
       }, 50);
     });
 
-    renderChips();
+    renderMarquee(); // 載入跑馬燈
     drawWheel();
   </script>
 </body>
