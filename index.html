@@ -53,7 +53,7 @@
     .marquee-wrapper {
       position: fixed;
       bottom: 0; left: 0; width: 100vw;
-      background: rgba(247, 243, 238, 0.85);
+      background: rgba(247, 243, 238, 0.85); /* 呼應婚禮主題色，霧面透光 */
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(215, 193, 178, 0.6);
@@ -65,14 +65,14 @@
     }
     .marquee-content {
       display: inline-block;
-      animation: marquee-scroll 160s linear infinite; 
+      animation: marquee-scroll 160s linear infinite; /* 設定一個優雅緩慢的速度 */
     }
     .marquee-content:hover {
-      animation-play-state: paused; 
+      animation-play-state: paused; /* 滑鼠移過去會暫停，方便閱讀 */
     }
     @keyframes marquee-scroll {
       0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); } 
+      100% { transform: translateX(-50%); } /* 因為內容複製了兩份，移動50%剛好無縫接軌 */
     }
     .marquee-item {
       display: inline-block;
@@ -90,15 +90,16 @@
       color: rgb(122, 106, 96);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[80px]">
   
-  <!-- 主遊戲畫面容器 -->
-  <main id="game-container" class="relative z-10 w-full max-w-[96vw] mx-auto px-4 sm:px-8 transition-opacity duration-500">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[75vh]">
+  <!-- 主遊戲畫面容器 (移除左側清單框，改為純淨的左右排版) -->
+  <main id="game-container" class="relative z-10 w-full max-w-[92vw] mx-auto px-4 sm:px-8 transition-opacity duration-500">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[70vh]">
       
-      <!-- 左側：標題與婚禮資訊卡片 -->
-      <div class="flex flex-col gap-10 lg:col-span-5 text-center lg:text-left justify-center lg:pl-10">
+      <!-- 左側：標題 (置中對齊，畫面更乾淨) -->
+      <div class="flex flex-col gap-6 lg:col-span-5 text-center lg:text-left justify-center">
         <header>
           <h1 class="text-5xl sm:text-7xl xl:text-8xl tracking-wider uppercase drop-shadow-sm leading-tight" style="color: rgb(92, 78, 68); font-weight: 800;">
             Wedding<br>Prize Wheel
@@ -107,32 +108,19 @@
             A special blessing for our wedding day!
           </p>
         </header>
-
-        <!-- 新增：質感婚禮資訊卡片，完美填補左側空白 -->
-        <div class="p-8 sm:p-10 rounded-[32px] backdrop-blur-md bg-white/75 shadow-xl border-2 self-start" style="border-color: rgba(227, 213, 202, 0.8); max-width: 460px;">
-          <p class="text-lg sm:text-xl font-bold tracking-[0.3em] uppercase" style="color: rgb(160, 130, 115);">Save the Date</p>
-          <p class="text-4xl sm:text-5xl font-black mt-3 tracking-widest" style="color: rgb(92, 78, 68);">2026.11.21</p>
-          <div class="h-[2px] w-full mt-6 mb-5" style="background: linear-gradient(90deg, rgba(215, 193, 178, 1) 0%, rgba(255,255,255,0) 100%);"></div>
-          <p class="text-2xl sm:text-3xl font-extrabold tracking-widest" style="color: rgb(112, 96, 86);">科皜 <span class="text-xl mx-2">&</span> 思萱</p>
-          <p class="text-lg sm:text-xl font-bold mt-2 tracking-wider" style="color: rgb(142, 126, 116);">台北士林萬麗酒店</p>
-        </div>
       </div>
 
-      <!-- 右側：大尺寸轉盤與 GO 按鈕 -->
-      <!-- ★ 修改點：使用 items-end 與 pr-4 強制轉盤靠右對齊，無論螢幕多寬都不會往中間跑去擋住臉 -->
-      <div class="flex flex-col items-end justify-center gap-10 lg:col-span-7 lg:pr-4 xl:pr-12">
-        <div class="relative mt-4 flex justify-end w-full">
+      <!-- 右側：大尺寸轉盤與 GO 按鈕 (移除位移，自然置中) -->
+      <div class="flex flex-col items-center justify-center gap-10 lg:col-span-7">
+        <div class="relative mt-4">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           <!-- 轉盤實體與顯示尺寸 -->
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(850px, 92vw); height:min(850px, 92vw); max-height: 70vh;"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(850px, 92vw); height:min(850px, 92vw);"></canvas>
         </div>
         
-        <!-- 按鈕也跟著轉盤置中對齊 -->
-        <div class="w-full flex justify-center" style="width:min(850px, 92vw);">
-          <button id="spin-btn" class="rounded-full px-28 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 30px;">
-            GO
-          </button>
-        </div>
+        <button id="spin-btn" class="rounded-full px-28 py-5 font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 30px;">
+          GO
+        </button>
       </div>
 
     </div>
@@ -147,20 +135,25 @@
   <div id="result-area" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 hidden backdrop-blur-sm bg-black/10">
     <div id="result-card" class="rounded-[44px] pt-10 pb-16 px-16 sm:px-28 text-center relative overflow-hidden shadow-2xl border-4 flex flex-col justify-between" style="border-color: rgb(215, 193, 178); width: 92vw; max-width: 1500px; min-height: 680px;">
       
+      <!-- 1. 上方：標題與中獎得主 (固定在頂部，不擋人臉) -->
       <div>
         <p class="text-xl sm:text-2xl font-extrabold tracking-widest uppercase mb-1" style="color: rgb(160, 130, 115);">🎉 CONGRATULATIONS 🎉</p>
         <p class="text-sm sm:text-base font-bold tracking-wider" style="color: rgb(180, 150, 135);">幸運中獎得主</p>
       </div>
       
+      <!-- 2. 中間：得獎人大名 (向下挪移，落在照片下方胸口空白處，避開人臉) -->
       <div class="my-auto py-2">
         <p id="result-name" class="font-black text-7xl sm:text-8xl xl:text-9xl tracking-wide drop-shadow-sm" style="color: rgb(92, 78, 68);"></p>
       </div>
       
+      <!-- 3. 下方：祝福語與右下角 Back 按鈕 -->
       <div class="relative mt-2">
         <div class="max-w-5xl mx-auto px-4 pb-2">
           <p class="text-base text-gray-500 mb-1 font-medium">Blessings：</p>
           <p id="result-wish" class="text-xl sm:text-2xl italic font-medium leading-relaxed" style="color: rgb(112, 96, 86);"></p>
         </div>
+
+        <!-- Back 按鈕：固定在右下方 -->
         <div class="absolute bottom-0 right-2 sm:right-4">
           <button id="close-result-btn" class="rounded-full px-8 py-2.5 font-bold shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(92, 78, 68); color: rgb(255, 255, 255); font-size: 16px;">
             Back
@@ -225,6 +218,7 @@
       { name: "孫喬新", wish: "幸福久久" }
     ];
 
+    /* === 內建 Web Audio 音效引擎 === */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playTickSound() {
@@ -299,11 +293,13 @@
       });
     }
 
+    /* 產生底部跑馬燈字串，並複製一份以達到無縫無限迴圈的效果 */
     function renderMarquee() {
       let htmlString = '';
       guestData.forEach((item) => {
         htmlString += `<span class="marquee-item"><span class="marquee-name">💌 ${item.name}</span><span class="marquee-wish">"${item.wish}"</span></span>`;
       });
+      // 串接兩份完整的內容，讓卷軸可以完美無縫連接
       marqueeContent.innerHTML = htmlString + htmlString;
     }
 
@@ -327,9 +323,10 @@
 
     function SinCos(angle) { return Math.sin(angle); }
 
+    // 與 9.5 秒旋轉完美同步的音效節奏追蹤器
     function trackWheelAudio(targetDeg) {
       const startTime = performance.now();
-      const duration = 9500; 
+      const duration = 9500; // 對應 9.5 秒
       const segmentDeg = 360 / guestData.length;
       let lastSegmentIndex = -1;
 
@@ -362,8 +359,10 @@
       canvas.classList.add('spinning');
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
+      // 啟動轉盤音效
       trackWheelAudio(totalDeg);
 
+      // 配合你原本設定的 9.8 秒揭曉時間
       setTimeout(() => {
         canvas.classList.remove('spinning');
         spinning = false;
@@ -384,13 +383,14 @@
           gameContainer.classList.add('hidden');
           resultArea.classList.remove('hidden');
           resultCard.className = 'rounded-[44px] pt-10 pb-16 px-16 sm:px-28 text-center relative overflow-hidden shadow-2xl border-4 flex flex-col justify-between min-h-[680px] result-modal-reveal';
-          playWinSound(); 
+          playWinSound(); // 播放中獎歡慶音效
           spawnConfetti();
         }, 300);
 
       }, 9800);
     });
 
+    // 點擊關閉/返回繼續抽獎按鈕
     closeResultBtn.addEventListener('click', () => {
       resultArea.classList.add('hidden');
       gameContainer.classList.remove('hidden');
@@ -399,7 +399,7 @@
       }, 50);
     });
 
-    renderMarquee();
+    renderMarquee(); // 載入跑馬燈
     drawWheel();
   </script>
 </body>
