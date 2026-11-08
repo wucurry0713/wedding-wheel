@@ -270,9 +270,18 @@
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
         
-        /* ★ 將字體基數從 800 放大至 1500，且最高限制提高到 55px，讓名字完美放大撐滿版面 */
         ctx.font = `700 ${Math.min(55, 1500/guestData.length)}px 'DM Sans', sans-serif`;
-        ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 25, 0);
+        
+        // 判斷：如果名字裡面有空格（例如 Claire Tseng），就只取第一個單字 (Claire)
+        // 否則如果字數超過 8 個字，則強制截斷但不加點點點
+        let displayName = item.name;
+        if (displayName.includes(' ')) {
+          displayName = displayName.split(' ')[0];
+        } else if (displayName.length > 8) {
+          displayName = displayName.slice(0, 8);
+        }
+
+        ctx.fillText(displayName, r - 25, 0);
         ctx.restore();
       });
     }
