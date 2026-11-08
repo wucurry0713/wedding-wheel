@@ -9,7 +9,6 @@
   <style>
     * { font-family: 'DM Sans', sans-serif; }
     
-    /* 滿版震撼中獎彈窗出現動畫 */
     @keyframes resultRevealModal { 
       0% { transform: scale(0.5) translateY(30px); opacity: 0; filter: blur(6px); } 
       70% { transform: scale(1.03) translateY(-10px); opacity: 1; filter: blur(0px); }
@@ -25,11 +24,9 @@
       animation: confettiBurst 1.8s ease-out forwards;
     }
     
-    /* 轉盤旋轉時間 9.5 秒 */
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 9.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
-    /* 首頁背景：將 background-position 改為 20% center，讓照片主角往左移 */
     body::before {
       content: "";
       position: fixed;
@@ -42,14 +39,12 @@
       pointer-events: none;
     }
 
-    /* 中獎卡片內部背景：讀取 SMV02162.jpg 照片 */
     #result-card {
       background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), url('SMV02162.jpg');
       background-size: cover;
       background-position: center;
     }
 
-    /* === 底部質感跑馬燈設計 (字體與區塊皆已放大) === */
     .marquee-wrapper {
       position: fixed;
       bottom: 0; left: 0; width: 100vw;
@@ -58,7 +53,7 @@
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(215, 193, 178, 0.6);
       box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-      padding: 24px 0; /* 加大上下內距 */
+      padding: 24px 0; 
       overflow: hidden;
       white-space: nowrap;
       z-index: 20;
@@ -77,7 +72,7 @@
     .marquee-item {
       display: inline-block;
       margin-right: 6rem;
-      font-size: 1.8rem; /* 字體大幅放大 */
+      font-size: 1.8rem; 
       letter-spacing: 0.05em;
     }
     .marquee-name {
@@ -93,34 +88,23 @@
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[90px]">
   
-  <!-- 主遊戲畫面容器 -->
   <main id="game-container" class="relative z-10 w-full max-w-[96vw] mx-auto px-4 sm:px-8 transition-opacity duration-500">
-    <!-- 縮小 gap 並設定 min-height，讓轉盤有更多空間生長 -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center min-h-[75vh]">
       
-      <!-- 左側：標題 (增加 pt-32 讓文字區塊整體往下移，避開人臉) -->
-      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center lg:pl-10 pt-32 lg:pt-48">
-        <header>
-          <h1 class="text-5xl sm:text-7xl xl:text-8xl tracking-wider uppercase drop-shadow-sm leading-tight" style="color: rgb(92, 78, 68); font-weight: 800;">
-            Wedding<br>Prize Wheel
-          </h1>
-          <p class="mt-6 text-2xl sm:text-3xl font-semibold tracking-wide" style="color: rgb(112, 96, 86);">
-            A special blessing for our wedding day!
-          </p>
-        </header>
+      <!-- 左側：主標題 (加入 whitespace-nowrap 強制不斷行) -->
+      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center lg:pl-10 pt-20 lg:pt-32">
+        <h1 class="text-6xl lg:text-7xl xl:text-8xl tracking-wider uppercase drop-shadow-sm leading-tight whitespace-nowrap" style="color: rgb(92, 78, 68); font-weight: 800;">
+          Wedding<br>Prize Wheel
+        </h1>
       </div>
 
       <!-- 右側：大尺寸轉盤與置中 GO 按鈕 -->
       <div class="flex flex-col items-end justify-center lg:col-span-7 lg:pr-8 xl:pr-16">
-        <!-- 將轉盤與按鈕包裝在同一個 relative 容器中，並強制靠右 -->
         <div class="relative inline-block mt-4">
-          <!-- 頂部指針 -->
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           
-          <!-- 轉盤實體 (尺寸上限拉大至 900px，並加上 85vh 限制避免大螢幕上下裁切) -->
           <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(900px, 92vw, 85vh); height:min(900px, 92vw, 85vh);"></canvas>
           
-          <!-- GO 按鈕移至正中央 (絕對定位、圓形、立體陰影) -->
           <button id="spin-btn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 rounded-full w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center font-black shadow-[0_0_30px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 36px; border: 8px solid white;">
             GO
           </button>
@@ -129,6 +113,11 @@
 
     </div>
   </main>
+
+  <!-- 獨立的副標題：固定在跑馬燈正上方，強制單行 -->
+  <p class="fixed bottom-[110px] w-full text-center lg:text-left lg:left-[7.5vw] text-2xl sm:text-3xl font-semibold tracking-wide whitespace-nowrap z-10" style="color: rgb(112, 96, 86);">
+    A special blessing for our wedding day!
+  </p>
 
   <!-- 底部滿版跑馬燈 -->
   <div class="marquee-wrapper">
@@ -285,7 +274,6 @@
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
         
-        /* 避免名字被中間的 GO 按鈕遮住，拉大最後面的留白空間 (由 r-20 改為 r-25) */
         ctx.font = `700 ${Math.min(45, 800/guestData.length)}px 'DM Sans', sans-serif`;
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 25, 0);
         ctx.restore();
