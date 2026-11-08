@@ -32,9 +32,10 @@
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(rgba(247, 243, 238, 0.85), rgba(247, 243, 238, 0.85)), url('SMV00141.jpg');
-      background-size: contain;
+      /* 改為 cover 讓超寬螢幕也能完美滿版，沒有斷層白邊 */
+      background-size: cover;
       background-repeat: no-repeat;
-      background-position: 20% center; 
+      background-position: center 25%; 
       z-index: 0;
       pointer-events: none;
     }
@@ -88,23 +89,27 @@
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[90px]">
   
-  <main id="game-container" class="relative z-10 w-full max-w-[96vw] mx-auto px-4 sm:px-8 transition-opacity duration-500 flex flex-col justify-center">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center h-full">
+  <!-- 容器加上 max-w-[1500px] 與 mx-auto，保證大螢幕下不會無限制擴張 -->
+  <main id="game-container" class="relative z-10 w-full max-w-[1500px] mx-auto px-6 sm:px-12 transition-opacity duration-500 flex flex-col justify-center" style="min-h: calc(100vh - 100px);">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
       
-      <!-- 左側：主標題 (往左退 -5vw) -->
-      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center lg:pl-10 pt-20 lg:pt-32" style="transform: translateX(-5vw);">
-        <!-- 字體大小 xl 從 8xl 稍微縮小為 5.5rem，確保不會撞到轉盤 -->
-        <h1 class="text-6xl lg:text-7xl xl:text-[5.5rem] tracking-wider uppercase drop-shadow-sm leading-tight whitespace-nowrap" style="color: rgb(92, 78, 68); font-weight: 800;">
+      <!-- 左側：主標題與副標題 (移除強制 translateX 位移，改用正常排版對齊) -->
+      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center pt-10">
+        <h1 class="text-6xl lg:text-7xl xl:text-[5.5rem] tracking-wider uppercase drop-shadow-sm leading-tight whitespace-nowrap font-extrabold" style="color: rgb(92, 78, 68);">
           Wedding<br>Prize Wheel
         </h1>
+        <!-- 副標題直接跟著主標題，永遠不會跑位分離 -->
+        <p class="mt-6 text-xl sm:text-2xl font-semibold tracking-wide whitespace-nowrap" style="color: rgb(112, 96, 86);">
+          A special blessing for our wedding day!
+        </p>
       </div>
 
-      <!-- 右側：大尺寸轉盤與置中 GO 按鈕 (往右退 6vw) -->
-      <div class="flex flex-col items-end justify-center lg:col-span-7 lg:pr-8 xl:pr-16" style="transform: translateX(6vw);">
-        <div class="relative inline-block mt-4">
+      <!-- 右側：大尺寸轉盤與置中 GO 按鈕 (移除強制 translateX，依賴 flex justify-end 靠右) -->
+      <div class="flex flex-col items-end justify-center lg:col-span-7">
+        <div class="relative inline-block">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           
-          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(900px, 92vw, 85vh); height:min(900px, 92vw, 85vh);"></canvas>
+          <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(900px, 90vw, 75vh); height:min(900px, 90vw, 75vh);"></canvas>
           
           <button id="spin-btn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 rounded-full w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center font-black shadow-[0_0_30px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 36px; border: 8px solid white;">
             GO
@@ -114,11 +119,6 @@
 
     </div>
   </main>
-
-  <!-- 獨立的副標題：配合主標題向左移，調整 left-[2.5vw] 對齊 -->
-  <p class="fixed bottom-[110px] w-full text-center lg:text-left lg:left-[2.5vw] text-2xl sm:text-3xl font-semibold tracking-wide whitespace-nowrap z-10" style="color: rgb(112, 96, 86);">
-    A special blessing for our wedding day!
-  </p>
 
   <!-- 底部滿版跑馬燈 -->
   <div class="marquee-wrapper">
