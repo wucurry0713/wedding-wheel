@@ -27,7 +27,6 @@
     #wheel-canvas { transition: transform 0s; }
     #wheel-canvas.spinning { transition: transform 9.5s cubic-bezier(0.15, 0.7, 0.1, 0.99); }
     
-    /* 背景照片維持 5% center 與 contain，完全不動它 */
     body::before {
       content: "";
       position: fixed;
@@ -89,11 +88,10 @@
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[90px]">
   
-  <!-- 放寬 max-w 到 1750px，並拿掉多餘的左右 padding，讓文字能退到螢幕最左緣 -->
   <main id="game-container" class="relative z-10 w-full max-w-[1750px] mx-auto px-4 sm:px-8 transition-opacity duration-500 flex flex-col justify-center" style="min-h: calc(100vh - 100px);">
     <div class="flex flex-col lg:flex-row items-center justify-between w-full">
       
-      <!-- 左側：主標題與副標題 (加上 translateX 強制再往左推) -->
+      <!-- 左側：主標題與副標題 -->
       <div class="flex flex-col text-center lg:text-left flex-shrink-0 z-10" style="transform: translateX(-1.5vw);">
         <h1 class="text-6xl lg:text-7xl xl:text-[6.5rem] tracking-wider uppercase drop-shadow-sm leading-tight whitespace-nowrap font-extrabold" style="color: rgb(92, 78, 68);">
           Wedding<br>Prize Wheel
@@ -103,11 +101,10 @@
         </p>
       </div>
 
-      <!-- 右側：霸氣大轉盤 (進一步往右推，並加大尺寸) -->
+      <!-- 右側：霸氣大轉盤 -->
       <div class="relative inline-block flex-shrink-0 z-10 mt-12 lg:mt-0" style="transform: translateX(1.5vw);">
         <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
         
-        <!-- 寬度限制再拉高到 1200px / 58vw / 88vh，這將會是超巨型轉盤 -->
         <canvas id="wheel-canvas" width="1200" height="1200" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(1200px, 58vw, 88vh); height:min(1200px, 58vw, 88vh);"></canvas>
         
         <button id="spin-btn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 rounded-full w-28 h-28 sm:w-40 sm:h-40 flex items-center justify-center font-black shadow-[0_0_30px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform cursor-pointer tracking-wider" style="background: rgb(199, 177, 159); color: rgb(255, 255, 255); font-size: 38px; border: 8px solid white;">
@@ -273,7 +270,8 @@
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#5c4e44'; 
         
-        ctx.font = `700 ${Math.min(45, 800/guestData.length)}px 'DM Sans', sans-serif`;
+        /* ★ 將字體基數從 800 放大至 1500，且最高限制提高到 55px，讓名字完美放大撐滿版面 */
+        ctx.font = `700 ${Math.min(55, 1500/guestData.length)}px 'DM Sans', sans-serif`;
         ctx.fillText(item.name.length > 8 ? item.name.slice(0,7)+'…' : item.name, r - 25, 0);
         ctx.restore();
       });
