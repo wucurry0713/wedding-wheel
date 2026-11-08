@@ -88,19 +88,23 @@
 </head>
 <body class="w-full min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center pb-[90px]">
   
-  <main id="game-container" class="relative z-10 w-full max-w-[96vw] mx-auto px-4 sm:px-8 transition-opacity duration-500">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center min-h-[75vh]">
+  <main id="game-container" class="relative z-10 w-full max-w-[96vw] mx-auto px-4 sm:px-8 transition-opacity duration-500 flex flex-col justify-center">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center h-full">
       
-      <!-- 左側：主標題 (加入 whitespace-nowrap 強制不斷行) -->
-      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center lg:pl-10 pt-20 lg:pt-32">
-        <h1 class="text-6xl lg:text-7xl xl:text-8xl tracking-wider uppercase drop-shadow-sm leading-tight whitespace-nowrap" style="color: rgb(92, 78, 68); font-weight: 800;">
-          Wedding<br>Prize Wheel
+      <!-- 左側：主標題與副標題 (調整字體大小與排版) -->
+      <div class="flex flex-col lg:col-span-5 text-center lg:text-left justify-center lg:pl-10">
+        <h1 class="text-5xl lg:text-6xl xl:text-7xl tracking-wider uppercase drop-shadow-sm leading-tight font-extrabold" style="color: rgb(92, 78, 68);">
+          WEDDING<br>PRIZE WHEEL
         </h1>
+        <!-- 將副標題放回主標題下方 -->
+        <p class="mt-4 text-xl sm:text-2xl font-semibold tracking-wide whitespace-nowrap" style="color: rgb(112, 96, 86);">
+          A special blessing for our wedding day!
+        </p>
       </div>
 
-      <!-- 右側：大尺寸轉盤與置中 GO 按鈕 -->
-      <div class="flex flex-col items-end justify-center lg:col-span-7 lg:pr-8 xl:pr-16">
-        <div class="relative inline-block mt-4">
+      <!-- 右側：大尺寸轉盤與置中 GO 按鈕 (調整對齊與邊距) -->
+      <div class="flex flex-col items-end justify-center lg:col-span-7 lg:pr-12 xl:pr-24">
+        <div class="relative inline-block">
           <div class="absolute top-[-30px] left-1/2 -translate-x-1/2 z-20 w-0 h-0" style="border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid rgb(92, 78, 68);"></div>
           
           <canvas id="wheel-canvas" width="1000" height="1000" class="rounded-full shadow-2xl bg-white/95 backdrop-blur-sm" style="width:min(900px, 92vw, 85vh); height:min(900px, 92vw, 85vh);"></canvas>
@@ -113,11 +117,6 @@
 
     </div>
   </main>
-
-  <!-- 獨立的副標題：固定在跑馬燈正上方，強制單行 -->
-  <p class="fixed bottom-[110px] w-full text-center lg:text-left lg:left-[7.5vw] text-2xl sm:text-3xl font-semibold tracking-wide whitespace-nowrap z-10" style="color: rgb(112, 96, 86);">
-    A special blessing for our wedding day!
-  </p>
 
   <!-- 底部滿版跑馬燈 -->
   <div class="marquee-wrapper">
